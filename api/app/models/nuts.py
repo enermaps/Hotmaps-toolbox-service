@@ -8,10 +8,8 @@ from geoalchemy2.shape import to_shape
 
 
 class Nuts(db.Model):
-    __tablename__ = 'nuts'
-    __table_args__ = (
-        {'schema': 'geo'}
-    )
+    __tablename__ = "nuts"
+    __table_args__ = {"schema": "geo"}
 
     CRS = 4258
 
@@ -21,20 +19,20 @@ class Nuts(db.Model):
     stat_levl_ = db.Column(db.Integer)
     shape_area = db.Column(db.Numeric)
     shape_len = db.Column(db.Numeric)
-    geom = db.Column(Geometry('GEOMETRY', 4258))
+    geom = db.Column(Geometry("GEOMETRY", 4258))
     year = db.Column(db.Date)
 
     def __repr__(self):
         return "<Nuts(nuts_id='%s', name='%s', level='%s')>" % (
-            self.nuts_id, self.name, self.stat_levl_)
+            self.nuts_id,
+            self.name,
+            self.stat_levl_,
+        )
 
 
 class NutsRG01M(db.Model):
-    __tablename__ = 'nuts_rg_01m'
-    __table_args__ = (
-        db.UniqueConstraint('nuts_id'),
-        {'schema': 'geo'}
-    )
+    __tablename__ = "nuts_rg_01m"
+    __table_args__ = (db.UniqueConstraint("nuts_id"), {"schema": "geo"})
 
     CRS = 4258
 
@@ -44,8 +42,11 @@ class NutsRG01M(db.Model):
     stat_levl_ = db.Column(db.Integer)
     shape_area = db.Column(db.Numeric)
     shape_len = db.Column(db.Numeric)
-    geom = db.Column(Geometry('GEOMETRY', 4258))
+    geom = db.Column(Geometry("GEOMETRY", 4258))
 
     def __repr__(self):
         return "<Nuts(nuts_id='%s', name='%s', level='%s')>" % (
-            self.nuts_id, self.name, self.stat_levl_)
+            self.nuts_id,
+            self.name,
+            self.stat_levl_,
+        )

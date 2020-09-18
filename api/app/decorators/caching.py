@@ -5,6 +5,7 @@ from flask import request, make_response, jsonify
 
 def cache_control(*directives):
     """Insert a Cache-Control header with the given directives."""
+
     def decorator(f):
         @functools.wraps(f)
         def wrapped(*args, **kwargs):
@@ -15,20 +16,23 @@ def cache_control(*directives):
             rv = make_response(rv)
 
             # insert the Cache-Control header and return response
-            rv.headers['Cache-Control'] = ', '.join(directives)
+            rv.headers["Cache-Control"] = ", ".join(directives)
             return rv
+
         return wrapped
+
     return decorator
 
 
 def no_cache(f):
     """Insert a no-cache directive in the response. This decorator just
     invokes the cache-control decorator with the specific directives."""
-    return cache_control('private', 'no-cache', 'no-store', 'max-age=0')(f)
+    return cache_control("private", "no-cache", "no-store", "max-age=0")(f)
 
 
 def etag(f):
     """Add entity tag (etag) handling to the decorated route."""
+
     @functools.wraps(f)
     def wrapped(*args, **kwargs):
         # invoke the wrapped function and generate a response object from
@@ -40,7 +44,7 @@ def etag(f):
 
         # etags only make sense for request that are cacheable, so only
         # GET and HEAD requests are allowed
-        if request.method not in ['GET', 'HEAD']:
+        if request.method not in ["GET", "HEAD"]:
             return rv
 
         # if the response is not a code 200 OK then we let it through
@@ -52,30 +56,41 @@ def etag(f):
         # text and set it in the response header
 
         etag = '"' + hashlib.md5(rv.get_data()).hexdigest() + '"'
-        rv.headers['ETag'] = etag
+        rv.headers["ETag"] = etag
 
         # handle If-Match and If-None-Match request headers if present
-        if_match = request.headers.get('If-Match')
-        if_none_match = request.headers.get('If-None-Match')
+        if_match = request.headers.get("If-Match")
+        if_none_match = request.headers.get("If-None-Match")
         if if_match:
             # only return the response if the etag for this request matches
             # any of the etags given in the If-Match header. If there is no
             # match, then return a 412 Precondition Failed status code
-            etag_list = [tag.strip() for tag in if_match.split(',')]
-            if etag not in etag_list and '*' not in etag_list:
-                response = jsonify({'status': 412, 'error': 'precondition failed',
-                                    'message': 'precondition failed'})
+            etag_list = [tag.strip() for tag in if_match.split(",")]
+            if etag not in etag_list and "*" not in etag_list:
+                response = jsonify(
+                    {
+                        "status": 412,
+                        "error": "precondition failed",
+                        "message": "precondition failed",
+                    }
+                )
                 response.status_code = 412
                 return response
         elif if_none_match:
             # only return the response if the etag for this request does not
             # match any of the etags given in the If-None-Match header. If
             # one matches, then return a 304 Not Modified status code
-            etag_list = [tag.strip() for tag in if_none_match.split(',')]
-            if etag in etag_list or '*' in etag_list:
-                response = jsonify({'status': 304, 'error': 'not modified',
-                                    'message': 'resource not modified'})
+            etag_list = [tag.strip() for tag in if_none_match.split(",")]
+            if etag in etag_list or "*" in etag_list:
+                response = jsonify(
+                    {
+                        "status": 304,
+                        "error": "not modified",
+                        "message": "resource not modified",
+                    }
+                )
                 response.status_code = 304
                 return response
         return rv
+
     return wrapped
