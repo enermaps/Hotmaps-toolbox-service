@@ -1,6 +1,6 @@
 import os, sys, importlib.util
 
-constants_path = os.path.join(os.path.dirname(__file__), "..", "app", "constants.py")
+constants_path = os.path.join(os.path.dirname(__file__), '..', 'app', 'constants.py')
 constants_spec = importlib.util.spec_from_file_location('constants', constants_path)
 constants = importlib.util.module_from_spec(constants_spec)
 constants_spec.loader.exec_module(constants)
@@ -30,7 +30,8 @@ SQLALCHEMY_DATABASE_URI = 'postgresql://{user}:{password}@{host}:{port}/{db}'.fo
 )
 
 SQLALCHEMY_BINDS = {
-    'cm_db': 'sqlite:///' + db_path
+    'cm_db':      os.environ.get('DATABASE_URL') or \
+                  'sqlite:///' + db_path
 }
 
 SECRET_KEY = FLASK_SECRET_KEY
