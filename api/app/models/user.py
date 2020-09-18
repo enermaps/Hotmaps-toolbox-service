@@ -1,22 +1,21 @@
 from .. import dbGIS as db
 from flask_security import UserMixin
 from .role import Role
-from itsdangerous import (TimedJSONWebSignatureSerializer, BadSignature, SignatureExpired)
+from itsdangerous import TimedJSONWebSignatureSerializer, BadSignature, SignatureExpired
 import sys
 from ..constants import FLASK_SECRET_KEY
 import datetime
 
 
 class User(db.Model, UserMixin):
-    '''
+    """
     The model for a user in the database
-    '''
-    __tablename__ = 'users'
-    __table_args__ = (
-        {
-            'schema': 'user',
-        }
-    )
+    """
+
+    __tablename__ = "users"
+    __table_args__ = {
+        "schema": "user",
+    }
 
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(255))
@@ -30,43 +29,43 @@ class User(db.Model, UserMixin):
     active = db.Column(db.Boolean, default=False)
     confirmed_at = db.Column(db.DateTime())
     active_token = db.Column(db.String(255))
-    roles = db.relationship('Role', secondary='user.roles_users', backref=db.backref('user_id', lazy='dynamic'))
-    uploads = db.relationship('Uploads', cascade='delete')
-    snapshots = db.relationship('Snapshots', cascade='delete')
+    roles = db.relationship(
+        "Role",
+        secondary="user.roles_users",
+        backref=db.backref("user_id", lazy="dynamic"),
+    )
+    uploads = db.relationship("Uploads", cascade="delete")
+    snapshots = db.relationship("Snapshots", cascade="delete")
 
     @classmethod
     def get_by_email(cls, email):
-        '''
+        """
         return a user by its email
         :param cls:
         :param email:
         :return: the user
-        '''
+        """
         return db.session.query(User).filter(User.email == email).first()
 
     def generate_auth_token(self, expiration=43200):
-        '''
+        """
         Method called for generating an authentification token for the user that will last for 43200 seconds (=12h)
         :param expiration:
         :return: the serialized token
-        '''
+        """
         s = TimedJSONWebSignatureSerializer(FLASK_SECRET_KEY, expires_in=expiration)
-        token = s.dumps(
-            {
-                'id': self.id,
-                'date': str(datetime.datetime.now())
-            })
+        token = s.dumps({"id": self.id, "date": str(datetime.datetime.now())})
         self.active_token = token
-        db.session.commit();
-        return str(token, 'utf8')
+        db.session.commit()
+        return str(token, "utf8")
 
     @staticmethod
     def verify_auth_token(token):
-        '''
+        """
         Method used to verify if the given token correspond to the user
         :param token:
         :return: the user if it exists, None otherwise
-        '''
+        """
         s = TimedJSONWebSignatureSerializer(FLASK_SECRET_KEY)
         try:
             data = s.loads(token)
@@ -74,7 +73,7 @@ class User(db.Model, UserMixin):
             return None  # valid token, but expired
         except BadSignature:
             return None  # invalid token
-        user = User.query.filter_by(id=data['id']).first()
+        user = User.query.filter_by(id=data["id"]).first()
 
         if user.active_token != token:
             return None  # the user has been logout
@@ -82,10 +81,8 @@ class User(db.Model, UserMixin):
 
 
 class RolesUsers(db.Model):
-    __tablename__ = 'roles_users'
-    __table_args__ = (
-        {'schema': 'user'}
-    )
+    __tablename__ = "roles_users"
+    __table_args__ = {"schema": "user"}
     id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column('user_id', db.Integer(), db.ForeignKey('user.users.id'))
-    role_id = db.Column('role_id', db.Integer(), db.ForeignKey('user.roles.id'))
+    user_id = db.Column("user_id", db.Integer(), db.ForeignKey("user.users.id"))
+    role_id = db.Column("role_id", db.Integer(), db.ForeignKey("user.roles.id"))

@@ -1,29 +1,42 @@
 from .. import dbGIS as db
 from ..decorators.restplus import api
-from ..decorators.exceptions import RequestException, ParameterException, UserUnidentifiedException, \
-    SnapshotNotExistingException
+from ..decorators.exceptions import (
+    RequestException,
+    ParameterException,
+    UserUnidentifiedException,
+    SnapshotNotExistingException,
+)
 from ..models.user import User
 from ..models.snapshots import Snapshots
-from ..decorators.serializers import snapshot_load_input, snapshot_load_output, snapshot_add_input, \
-    snapshot_add_output, snapshot_delete_input, snapshot_delete_output, snapshot_list_input, snapshot_list_output, \
-    snapshot_update_input, snapshot_update_output
+from ..decorators.serializers import (
+    snapshot_load_input,
+    snapshot_load_output,
+    snapshot_add_input,
+    snapshot_add_output,
+    snapshot_delete_input,
+    snapshot_delete_output,
+    snapshot_list_input,
+    snapshot_list_output,
+    snapshot_update_input,
+    snapshot_update_output,
+)
 from app import celery
 from flask_restplus import Resource
 from ..decorators.timeout import return_on_timeout_endpoint
 
-nsSnapshot = api.namespace('snapshot', description='Operations related to snapshots')
+nsSnapshot = api.namespace("snapshot", description="Operations related to snapshots")
 ns = nsSnapshot
 
 
-@ns.route('/add')
-@api.response(530, 'Request error')
-@api.response(531, 'Missing parameter')
-@api.response(539, 'User Unidentified')
+@ns.route("/add")
+@api.response(530, "Request error")
+@api.response(531, "Missing parameter")
+@api.response(539, "User Unidentified")
 class AddSnapshot(Resource):
     @return_on_timeout_endpoint()
     @api.marshal_with(snapshot_add_output)
     @api.expect(snapshot_add_input)
-    @celery.task(name='config a snapshot')
+    @celery.task(name="config a snapshot")
     def post(self):
         """
         The method called to add a snapshot for the connected user
@@ -32,20 +45,20 @@ class AddSnapshot(Resource):
         # Entries
         wrong_parameter = []
         try:
-            token = api.payload['token']
+            token = api.payload["token"]
         except:
-            wrong_parameter.append('token')
+            wrong_parameter.append("token")
         try:
-            config = api.payload['config']
+            config = api.payload["config"]
         except:
-            wrong_parameter.append('config')
+            wrong_parameter.append("config")
 
         if len(wrong_parameter) > 0:
-            exception_message = ''
+            exception_message = ""
             for i in range(len(wrong_parameter)):
                 exception_message += wrong_parameter[i]
                 if i != len(wrong_parameter) - 1:
-                    exception_message += ', '
+                    exception_message += ", "
             raise ParameterException(str(exception_message))
         # check token
         user = User.verify_auth_token(token)
@@ -57,21 +70,19 @@ class AddSnapshot(Resource):
         db.session.commit()
 
         # output
-        return {
-            'message': 'snapshot created successfully'
-        }
+        return {"message": "snapshot created successfully"}
 
 
-@ns.route('/load')
-@api.response(530, 'Request error')
-@api.response(531, 'Missing parameter')
-@api.response(537, 'Snapshot not existing')
-@api.response(539, 'User Unidentified')
+@ns.route("/load")
+@api.response(530, "Request error")
+@api.response(531, "Missing parameter")
+@api.response(537, "Snapshot not existing")
+@api.response(539, "User Unidentified")
 class LoadSnapshot(Resource):
     @return_on_timeout_endpoint()
     @api.marshal_with(snapshot_load_output)
     @api.expect(snapshot_load_input)
-    @celery.task(name='load a snapshot')
+    @celery.task(name="load a snapshot")
     def post(self):
         """
         The method called to load a snapshot of the connected user
@@ -80,20 +91,20 @@ class LoadSnapshot(Resource):
         # Entries
         wrong_parameter = []
         try:
-            token = api.payload['token']
+            token = api.payload["token"]
         except:
-            wrong_parameter.append('token')
+            wrong_parameter.append("token")
         try:
-            id = api.payload['id']
+            id = api.payload["id"]
         except:
-            wrong_parameter.append('id')
+            wrong_parameter.append("id")
 
         if len(wrong_parameter) > 0:
-            exception_message = ''
+            exception_message = ""
             for i in range(len(wrong_parameter)):
                 exception_message += wrong_parameter[i]
                 if i != len(wrong_parameter) - 1:
-                    exception_message += ', '
+                    exception_message += ", "
             raise ParameterException(str(exception_message))
 
         # check token
@@ -110,21 +121,19 @@ class LoadSnapshot(Resource):
             raise SnapshotNotExistingException
 
         # output
-        return {
-            'config': snapshot.config
-        }
+        return {"config": snapshot.config}
 
 
-@ns.route('/delete')
-@api.response(530, 'Request error')
-@api.response(531, 'Missing parameter')
-@api.response(537, 'Snapshot not existing')
-@api.response(539, 'User Unidentified')
+@ns.route("/delete")
+@api.response(530, "Request error")
+@api.response(531, "Missing parameter")
+@api.response(537, "Snapshot not existing")
+@api.response(539, "User Unidentified")
 class DeleteSnapshot(Resource):
     @return_on_timeout_endpoint()
     @api.marshal_with(snapshot_delete_output)
     @api.expect(snapshot_delete_input)
-    @celery.task(name='delete a snapshot')
+    @celery.task(name="delete a snapshot")
     def delete(self):
         """
         The method called to delete a snapshot of the connected user
@@ -133,20 +142,20 @@ class DeleteSnapshot(Resource):
         # Entries
         wrong_parameter = []
         try:
-            token = api.payload['token']
+            token = api.payload["token"]
         except:
-            wrong_parameter.append('token')
+            wrong_parameter.append("token")
         try:
-            id = api.payload['id']
+            id = api.payload["id"]
         except:
-            wrong_parameter.append('id')
+            wrong_parameter.append("id")
 
         if len(wrong_parameter) > 0:
-            exception_message = ''
+            exception_message = ""
             for i in range(len(wrong_parameter)):
                 exception_message += wrong_parameter[i]
                 if i != len(wrong_parameter) - 1:
-                    exception_message += ', '
+                    exception_message += ", "
             raise ParameterException(str(exception_message))
 
         # check token
@@ -166,21 +175,19 @@ class DeleteSnapshot(Resource):
         db.session.commit()
 
         # output
-        return {
-            'message': 'The snapshot has been deleted'
-        }
+        return {"message": "The snapshot has been deleted"}
 
 
-@ns.route('/update')
-@api.response(530, 'Request error')
-@api.response(531, 'Missing parameter')
-@api.response(537, 'Snapshot not existing')
-@api.response(539, 'User Unidentified')
+@ns.route("/update")
+@api.response(530, "Request error")
+@api.response(531, "Missing parameter")
+@api.response(537, "Snapshot not existing")
+@api.response(539, "User Unidentified")
 class UpdateSnapshot(Resource):
     @return_on_timeout_endpoint()
     @api.marshal_with(snapshot_update_output)
     @api.expect(snapshot_update_input)
-    @celery.task(name='update a celery')
+    @celery.task(name="update a celery")
     def post(self):
         """
         The method called to update a snapshot of the connected user
@@ -189,24 +196,24 @@ class UpdateSnapshot(Resource):
         # Entries
         wrong_parameter = []
         try:
-            token = api.payload['token']
+            token = api.payload["token"]
         except:
-            wrong_parameter.append('token')
+            wrong_parameter.append("token")
         try:
-            id = api.payload['id']
+            id = api.payload["id"]
         except:
-            wrong_parameter.append('id')
+            wrong_parameter.append("id")
         try:
-            config = api.payload['config']
+            config = api.payload["config"]
         except:
-            wrong_parameter.append('config')
+            wrong_parameter.append("config")
 
         if len(wrong_parameter) > 0:
-            exception_message = ''
+            exception_message = ""
             for i in range(len(wrong_parameter)):
                 exception_message += wrong_parameter[i]
                 if i != len(wrong_parameter) - 1:
-                    exception_message += ', '
+                    exception_message += ", "
             raise ParameterException(str(exception_message))
 
         # check token
@@ -225,20 +232,18 @@ class UpdateSnapshot(Resource):
         db.session.commit()
 
         # output
-        return {
-            'message': 'The snapshot has been updated'
-        }
+        return {"message": "The snapshot has been updated"}
 
 
-@ns.route('/list')
-@api.response(530, 'Request error')
-@api.response(531, 'Missing parameter')
-@api.response(539, 'User Unidentified')
+@ns.route("/list")
+@api.response(530, "Request error")
+@api.response(531, "Missing parameter")
+@api.response(539, "User Unidentified")
 class ListSnapshot(Resource):
     @return_on_timeout_endpoint()
     @api.marshal_with(snapshot_list_output)
     @api.expect(snapshot_list_input)
-    @celery.task(name='list all snapshots of a user')
+    @celery.task(name="list all snapshots of a user")
     def post(self):
         """
         The method called to list all snapshots of the connected user
@@ -247,16 +252,16 @@ class ListSnapshot(Resource):
         # Entries
         wrong_parameter = []
         try:
-            token = api.payload['token']
+            token = api.payload["token"]
         except:
-            wrong_parameter.append('token')
+            wrong_parameter.append("token")
 
         if len(wrong_parameter) > 0:
-            exception_message = ''
+            exception_message = ""
             for i in range(len(wrong_parameter)):
                 exception_message += wrong_parameter[i]
                 if i != len(wrong_parameter) - 1:
-                    exception_message += ', '
+                    exception_message += ", "
             raise ParameterException(str(exception_message))
 
         # check token
@@ -267,6 +272,4 @@ class ListSnapshot(Resource):
         snapshots = Snapshots.query.filter_by(user_id=user.id).all()
 
         # output
-        return {
-            'snapshots': snapshots
-        }
+        return {"snapshots": snapshots}

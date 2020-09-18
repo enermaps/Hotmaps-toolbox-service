@@ -5,6 +5,7 @@ from flask import jsonify
 def json(f):
     """Generate a JSON response from a database model or a Python
     dictionary."""
+
     @functools.wraps(f)
     def wrapped(*args, **kwargs):
         # invoke the wrapped function
@@ -32,4 +33,5 @@ def json(f):
         if headers is not None:
             rv.headers.extend(headers)
         return rv
+
     return wrapped
