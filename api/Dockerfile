@@ -15,7 +15,7 @@ RUN mkdir -p /var/hotmaps/users
 # Setup app server
 WORKDIR /api
 COPY . .
-COPY flask.sh /bin/local_flask
+COPY local_flask.sh /bin/local_flask
 
 # Copy app source code
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.6 2 && \

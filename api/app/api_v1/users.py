@@ -10,17 +10,17 @@ from flask_security import SQLAlchemySessionUserDatastore
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from passlib.hash import bcrypt
 
-from .. import constants
-from .. import dbGIS as db
-from .. import login_manager, mail
-from ..decorators.exceptions import (ActivationException, ParameterException,
+from app import constants
+from app import dbGIS as db
+from app import login_manager, mail
+from app.decorators.exceptions import (ActivationException, ParameterException,
                                      RequestException, UserExistingException,
                                      UserNotActivatedException,
                                      UserUnidentifiedException,
                                      WrongCredentialException)
-from ..decorators.parsers import file_upload_feedback
-from ..decorators.restplus import api
-from ..decorators.serializers import (feedback_output, upload_space_used_input,
+from app.decorators.parsers import file_upload_feedback
+from app.decorators.restplus import api
+from app.decorators.serializers import (feedback_output, upload_space_used_input,
                                       upload_space_used_output,
                                       user_activate_input,
                                       user_activate_output,
@@ -37,10 +37,10 @@ from ..decorators.serializers import (feedback_output, upload_space_used_input,
                                       user_recovery_output,
                                       user_register_input,
                                       user_register_output)
-from ..decorators.timeout import return_on_timeout_endpoint
-from ..models.role import Role
-from ..models.user import User
-from .upload import calculate_total_space
+from app.decorators.timeout import return_on_timeout_endpoint
+from app.models.role import Role
+from app.models.user import User
+from app.api_v1.upload import calculate_total_space
 
 # Setup Flask-Security
 user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)

@@ -139,8 +139,8 @@ def create_app(config_name):
     mail.init_app(app)
     login_manager.init_app(app, add_context_processor=False)
 
-    geoserver_cors = os.environ.get("GEOSERVER_URL")
-    www_cors = os.environ.get("CLIENT_URL")
+    geoserver_cors = os.environ.get("GEOSERVER_URL", "")
+    www_cors = os.environ.get("CLIENT_URL", "")
 
     CORS(
         app,

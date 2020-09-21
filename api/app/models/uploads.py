@@ -20,10 +20,10 @@ from geojson import Feature, FeatureCollection
 from pandas import DataFrame
 from shapely.ops import transform
 
-from .. import constants
-from .. import dbGIS as db
-from .. import helper
-from ..decorators.exceptions import RequestException
+from app import constants
+from app import dbGIS as db
+from app import helper
+from app.decorators.exceptions import RequestException
 
 ALLOWED_EXTENSIONS = set(["tif", "csv"])
 GREATER_OR_EQUAL = "greaterOrEqual"
