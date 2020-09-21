@@ -11,7 +11,7 @@ The Hotmaps toolbox is built around several services:
 - reverse proxy (Nginx)
 - wiki (Gollum)
 
-All these services are built around Docker.
+All these services are run in Docker.
 A docker-compose.yml file allows to configure and run the whole project in one place. Only the database is run separatly.
 
 ## Build, configure and run:

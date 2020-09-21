@@ -8,20 +8,23 @@ It is based on Ubuntu 16.04.
 ### Software installed:
 #### Basic software
 
-
 * Python >= 3.5
 * Flask 0.12
 * Flask-RESTful 0.3.5
 * Flask-Login 0.4.0
 * Flask-Bcrypt 0.5
 * Geoalchemy2
+
 #### Services
+
 * nginx
 * uWSGI
 * supervisor
 
 ### Build and run:
+
 #### Build
+
 To build this image from Dockerfile run this command in your Docker or Docker Toolbox shell:
 
 `docker build -t hotmaps/toolbox .`
@@ -29,44 +32,66 @@ To build this image from Dockerfile run this command in your Docker or Docker To
 ### Setup celery
 
 start celery:
-`celery -A celery_worker.celery worker --loglevel=info`
 
+```
+```shell
+celery -A celery_worker.celery worker --loglevel=info
+```
 
+### Setup monitoring
+We use flower to monitor the celery queue:
 
-### Setup flower
+```shell
 celery -A celery_worker.celery flower --port=5555
+```
+
 ### Setup rabbitMq
-by default rabbitmq server will run on the port 5672
-#### Setup rabbitMq server on the OS
 
-start a rabbitmq server installed in the system :
-`sudo service rabbitmq-server start`
 
-check the status of the server :
-`sudo rabbitmqctl status`
+Start a rabbitmq server installed in the system :
 
-#### Install redis on the OS
-Add the repository, update your APT cache and install redis
+```shell
+sudo service rabbitmq-server start
+```
 
-` wget -q -O - http://www.dotdeb.org/dotdeb.gpg | sudo apt-key add - `
+Check the status of the server :
 
-`sudo apt-get update`
+```shell
+sudo rabbitmqctl status
+```
 
-`sudo apt-get install redis-server`
+By default, rabbitmq server will run on the port 5672.
 
 #### Setup redis
-by default redis server will run on the port 6379
-#### Setup redis server on the OS
+
+Add the repository, update your APT cache and install redis
+
+```shell
+wget -q -O - http://www.dotdeb.org/dotdeb.gpg | sudo apt-key add - 
+
+sudo apt-get update
+
+sudo apt-get install redis-server
+```
+
 
 start a redis server installed in the system :
-`sudo service redis-server start`
+
+```shell
+sudo service redis-server start
+```
 
 check the status of the server :
-`sudo service redis-server status`
+
+```shell
+sudo service redis-server status
+```
+
+By default redis server will run on the port 6379.
 
 #### Run
 
-**Important:** Before running make sure you have a directory containing some code. This directory will be linked to the volume of the container. Here is the most basic file that needs to be in that directory*:
+**Important:** Before running make sure you have a directory containing some code. This directory will be linked to the volume of the container. Here is the most basic file that needs to be in that directory:
 
 **wsgi.py**
 
@@ -138,7 +163,7 @@ This library will be needed to load the `.env` file containing configuration of 
 And you also need to install [RabbitMQ](https://www.rabbitmq.com/) and [Celery](http://www.celeryproject.org/):
 
 ```bash
-sudo apt install rabbitqm-server
+sudo apt install rabbitmq-server
 pip install celery
 ```
 
