@@ -18,14 +18,13 @@ COPY . .
 COPY local_flask.sh /bin/local_flask
 
 # Copy app source code
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.6 2 && \
-    pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 EXPOSE 80
 
 # copy supervisord service over
 RUN mkdir -p /var/log/supervisor
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY supervisord.conf /etc/supervisor/supervisor.conf
 
 # Start processes
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisor.conf"]
