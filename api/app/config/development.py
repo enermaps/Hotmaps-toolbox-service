@@ -2,17 +2,13 @@ import importlib.util
 import os
 import sys
 
-constants_path = os.path.join(os.path.dirname(__file__), "..", "app", "constants.py")
-constants_spec = importlib.util.spec_from_file_location("constants", constants_path)
-constants = importlib.util.module_from_spec(constants_spec)
-constants_spec.loader.exec_module(constants)
-
+import app.constants as constants
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, "../data.sqlite")
 
 # Flask settings
-DEBUG = False
+DEBUG = True
 FLASK_SECRET_KEY = constants.FLASK_SECRET_KEY
 FLASK_SALT = constants.FLASK_SALT
 
@@ -27,7 +23,7 @@ SQLALCHEMY_DATABASE_URI = "postgresql://{user}:{password}@{host}:{port}/{db}".fo
     user=user, password=password, host=host, port=port, db=database
 )
 
-SQLALCHEMY_BINDS = {"cm_db": os.environ.get("DATABASE_URL") or "sqlite:///" + db_path}
+SQLALCHEMY_BINDS = {"cm_db": "sqlite:///" + db_path}
 
 SECRET_KEY = FLASK_SECRET_KEY
 SQLALCHEMY_TRACK_MODIFICATIONS = True
@@ -39,6 +35,7 @@ RESTPLUS_JSON = {"separators": (",", ":")}
 
 CELERY_BROKER_URL = constants.CELERY_BROKER_URL
 CELERY_RESULT_BACKEND = constants.CELERY_RESULT_BACKEND
+UPLOAD_FOLDER = "uploaded_file"
 USER_UPLOAD_FOLDER = constants.USER_UPLOAD_FOLDER
 
 # Geoserver

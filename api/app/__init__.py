@@ -9,6 +9,7 @@ import uuid
 
 import pika
 from app.decorators.restplus import api as api_rest_plus
+import app.constants as constant
 from celery import Celery
 from flask_cors import CORS
 from flask_login import LoginManager
@@ -71,7 +72,6 @@ class CalculationModuleRpcClient(object):
         return self.response
 
 
-from . import constants
 
 dbGIS = SQLAlchemy()
 
@@ -100,7 +100,8 @@ def create_app(config_name):
     Create app instance
     """
     app = Flask(__name__)
-    cfg = os.path.join(os.getcwd(), "config", config_name + ".py")
+    current_file_dir = os.path.dirname(os.path.abspath(__file__))
+    cfg = os.path.join(current_file_dir, "config", config_name + ".py")
     app.config.from_pyfile(cfg)
 
     # initialize extensions
@@ -138,8 +139,8 @@ def create_app(config_name):
     mail.init_app(app)
     login_manager.init_app(app, add_context_processor=False)
 
-    geoserver_cors = os.environ.get("GEOSERVER_URL")
-    www_cors = os.environ.get("CLIENT_URL")
+    geoserver_cors = os.environ.get("GEOSERVER_URL", "")
+    www_cors = os.environ.get("CLIENT_URL", "")
 
     CORS(
         app,

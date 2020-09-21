@@ -15,9 +15,11 @@ RUN mkdir -p /var/hotmaps/users
 # Setup app server
 WORKDIR /api
 COPY . .
+COPY local_flask.sh /bin/local_flask
 
 # Copy app source code
-RUN pip3 install -r requirements.txt
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.6 2 && \
+    pip3 install -r requirements.txt
 
 EXPOSE 80
 
