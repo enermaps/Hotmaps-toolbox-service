@@ -1,5 +1,6 @@
-from .. import BASE_URL
 import os
+
+from .. import BASE_URL
 
 dirname = os.path.dirname(__file__)
 

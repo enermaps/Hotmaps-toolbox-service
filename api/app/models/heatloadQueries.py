@@ -1,6 +1,5 @@
-from app import constants
-from app import model
-from app import celery
+from app import celery, constants, model
+
 from .. import helper
 
 # logging.basicConfig()

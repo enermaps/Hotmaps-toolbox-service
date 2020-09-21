@@ -1,6 +1,5 @@
 from app import dbGIS as db
 
-
 # logging.basicConfig()
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 

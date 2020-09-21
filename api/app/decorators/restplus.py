@@ -1,27 +1,24 @@
-import traceback
 import logging
+import traceback
 
 from flask_restplus import Api
-from .. import constants
 from sqlalchemy.orm.exc import NoResultFound
-from ..decorators.exceptions import (
-    HugeRequestException,
-    IntersectionException,
-    NotEnoughPointsException,
-    ParameterException,
-    RequestException,
-    ActivationException,
-    UserExistingException,
-    WrongCredentialException,
-    UserUnidentifiedException,
-    UserDoesntOwnUploadsException,
-    NotEnoughSpaceException,
-    UploadNotExistingException,
-    UserNotActivatedException,
-    SnapshotNotExistingException,
-    UploadFileNotExistingException,
-    TimeOutException,
-)
+
+from .. import constants
+from ..decorators.exceptions import (ActivationException, HugeRequestException,
+                                     IntersectionException,
+                                     NotEnoughPointsException,
+                                     NotEnoughSpaceException,
+                                     ParameterException, RequestException,
+                                     SnapshotNotExistingException,
+                                     TimeOutException,
+                                     UploadFileNotExistingException,
+                                     UploadNotExistingException,
+                                     UserDoesntOwnUploadsException,
+                                     UserExistingException,
+                                     UserNotActivatedException,
+                                     UserUnidentifiedException,
+                                     WrongCredentialException)
 
 log = logging.getLogger(__name__)
 

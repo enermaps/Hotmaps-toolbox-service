@@ -37,25 +37,24 @@
 #  DEALINGS IN THE SOFTWARE.
 # ******************************************************************************
 
-from __future__ import print_function, division
+from __future__ import division, print_function
 
 import math
-from multiprocessing import Pipe, Pool, Process, Manager
 import os
-import tempfile
-import threading
 import shutil
 import sys
+import tempfile
+import threading
+from multiprocessing import Manager, Pipe, Pool, Process
 from uuid import uuid4
 from xml.etree import ElementTree
 
-from osgeo import gdal
-from osgeo import osr
+from osgeo import gdal, osr
 
 try:
-    from PIL import Image
     import numpy
     import osgeo.gdal_array as gdalarray
+    from PIL import Image
     numpy_available = True
 except ImportError:
     # 'antialias' resampling is not available
@@ -1124,7 +1123,7 @@ def create_overview_tiles(tile_job_info, output_folder, options):
 def optparse_init():
     """Prepare the option parser for input (argv)"""
 
-    from optparse import OptionParser, OptionGroup
+    from optparse import OptionGroup, OptionParser
     usage = 'Usage: %prog [options] input_file [output]'
     p = OptionParser(usage, version='%prog ' + __version__)
     p.add_option('-p', '--profile', dest='profile',

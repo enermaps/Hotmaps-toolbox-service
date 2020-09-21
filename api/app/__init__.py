@@ -1,17 +1,19 @@
-from flask import Flask, g
 import logging.config
-import sys
 import os
+import sys
+
+from flask import Flask, g
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-import pika
 import uuid
-from celery import Celery
+
+import pika
 from app.decorators.restplus import api as api_rest_plus
+from celery import Celery
+from flask_cors import CORS
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_sqlalchemy import SQLAlchemy
 
 """__________________________________producer for COMPUTE_______________________________________________________"""
 
@@ -71,7 +73,6 @@ class CalculationModuleRpcClient(object):
 
 from . import constants
 
-
 dbGIS = SQLAlchemy()
 
 celery = Celery(
@@ -123,7 +124,8 @@ def create_app(config_name):
 
     api_rest_plus.add_namespace(nsSnapshot)
 
-    from .api_v1 import load_profile_namespace as main_heat_load_profile_namespace
+    from .api_v1 import \
+        load_profile_namespace as main_heat_load_profile_namespace
 
     api_rest_plus.add_namespace(main_heat_load_profile_namespace)
 

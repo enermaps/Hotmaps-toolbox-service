@@ -2,14 +2,13 @@
 #!/usr/bin/env python
 
 
-import uuid
-import time
 import logging
+import time
+import uuid
+
 import pika
-
-from app.model import getCMList, delete_cm
 from app import constants
-
+from app.model import delete_cm, getCMList
 
 LOG_FORMAT = (
     "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "

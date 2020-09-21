@@ -1,6 +1,7 @@
+from decimal import *
+
 from app import dbGIS as db
 from geoalchemy2 import Raster
-from decimal import *
 
 """
     Population Density layer as ha

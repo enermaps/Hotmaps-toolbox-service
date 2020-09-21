@@ -43,20 +43,19 @@
 import sys
 
 try:
-    from osgeo import gdal
-    from osgeo import osr
+    from osgeo import gdal, osr
 except:
     import gdal
     print 'You are using "old gen" bindings. gdal2tiles needs "new gen" bindings.'
     sys.exit(1)
 
-import os
 import math
+import os
 
 try:
-    from PIL import Image
     import numpy
     import osgeo.gdal_array as gdalarray
+    from PIL import Image
 except:
 
     # 'antialias' resampling is not available
@@ -65,7 +64,7 @@ except:
 
 import multiprocessing
 import tempfile
-from optparse import OptionParser, OptionGroup
+from optparse import OptionGroup, OptionParser
 
 __version__ = '$Id: gdal2tiles.py 27349 2014-05-16 18:58:51Z rouault $'
 
@@ -835,7 +834,7 @@ gdal_vrtmerge.py -o merged.vrt %s"""
     def optparse_init(self):
         """Prepare the option parser for input (argv)"""
 
-        from optparse import OptionParser, OptionGroup
+        from optparse import OptionGroup, OptionParser
         usage = 'Usage: %prog [options] input_file(s) [output]'
         p = OptionParser(usage, version='%prog ' + __version__)
         p.add_option(
