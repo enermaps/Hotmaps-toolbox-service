@@ -1,5 +1,5 @@
-from flask_restplus import reqparse
 import werkzeug
+from flask_restplus import reqparse
 
 pagination_arguments = reqparse.RequestParser()
 pagination_arguments.add_argument(

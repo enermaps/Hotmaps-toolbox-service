@@ -1,8 +1,9 @@
+from unittest import TestCase
+
 import requests
 
-from unittest import TestCase
-from . import test_token
 from .. import BASE_URL
+from . import test_token
 
 
 class TestGetUserInformation(TestCase):

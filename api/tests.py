@@ -1,9 +1,8 @@
 import unittest
-import coverage
-from tests.routes import test_indicators
-from app.models.indicators import layersData
-import coverage
 
+import coverage
+from app.models.indicators import layersData
+from tests.routes import test_indicators
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(test_indicators.TestIndicators)
