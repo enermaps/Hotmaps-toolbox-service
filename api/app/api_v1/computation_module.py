@@ -2,10 +2,14 @@ import signal
 
 from app import helper, model
 from app.decorators.restplus import api
-from app.decorators.serializers import (cm_id_input, compution_module_class,
-                                        compution_module_list,
-                                        input_computation_module,
-                                        test_communication_cm, uploadfile)
+from app.decorators.serializers import (
+    cm_id_input,
+    compution_module_class,
+    compution_module_list,
+    input_computation_module,
+    test_communication_cm,
+    uploadfile,
+)
 from app.model import getCMList, getUI, register_calulation_module
 from celery.task.control import revoke
 from flask import Response, current_app, jsonify, redirect, request, url_for
@@ -18,10 +22,8 @@ nsCM = api.namespace("cm", description="Operations related to statistisdscs")
 ns = nsCM
 import json
 import os
-import flask
-from flask import send_from_directory, send_file
-from app.constants import UPLOAD_DIRECTORY, DATASET_DIRECTORY
 
+import flask
 import requests
 from app import CalculationModuleRpcClient, celery
 from app.constants import DATASET_DIRECTORY, UPLOAD_DIRECTORY

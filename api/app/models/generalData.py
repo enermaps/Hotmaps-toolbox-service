@@ -1,5 +1,11 @@
-from app.constants import (CRS_LAU, CRS_NUTS, CRS_USER_GEOMETRY, LAU_TABLE,
-                           NUTS_LAU_LEVELS, NUTS_VAlUES)
+from app.constants import (
+    CRS_LAU,
+    CRS_NUTS,
+    CRS_USER_GEOMETRY,
+    LAU_TABLE,
+    NUTS_LAU_LEVELS,
+    NUTS_VAlUES,
+)
 from app.models.indicators import *
 
 

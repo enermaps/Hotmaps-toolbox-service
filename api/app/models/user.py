@@ -2,8 +2,7 @@ import datetime
 import sys
 
 from flask_security import UserMixin
-from itsdangerous import (BadSignature, SignatureExpired,
-                          TimedJSONWebSignatureSerializer)
+from itsdangerous import BadSignature, SignatureExpired, TimedJSONWebSignatureSerializer
 
 from .. import dbGIS as db
 from ..constants import FLASK_SECRET_KEY

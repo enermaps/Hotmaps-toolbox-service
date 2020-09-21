@@ -2,14 +2,20 @@ import logging
 
 import shapely.geometry as shapely_geom
 from app import celery
-from app.decorators.exceptions import (HugeRequestException,
-                                       IntersectionException,
-                                       ParameterException, RequestException)
+from app.decorators.exceptions import (
+    HugeRequestException,
+    IntersectionException,
+    ParameterException,
+    RequestException,
+)
 from app.decorators.restplus import api
 from app.decorators.serializers import (
-    load_profile_aggregation_curve, load_profile_aggregation_curve_hectares,
-    load_profile_aggregation_curve_output, load_profile_aggregation_day_input,
-    load_profile_aggregation_hectares)
+    load_profile_aggregation_curve,
+    load_profile_aggregation_curve_hectares,
+    load_profile_aggregation_curve_output,
+    load_profile_aggregation_day_input,
+    load_profile_aggregation_hectares,
+)
 from app.models import generalData
 from app.models.heatloadQueries import HeatLoadProfile
 from flask_restplus import Resource

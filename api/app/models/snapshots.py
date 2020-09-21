@@ -1,6 +1,9 @@
 from .. import dbGIS as db
-from ..decorators.restplus import (ParameterException, RequestException,
-                                   UserUnidentifiedException)
+from ..decorators.restplus import (
+    ParameterException,
+    RequestException,
+    UserUnidentifiedException,
+)
 
 
 class Snapshots(db.Model):

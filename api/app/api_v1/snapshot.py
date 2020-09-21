@@ -2,19 +2,25 @@ from app import celery
 from flask_restplus import Resource
 
 from .. import dbGIS as db
-from ..decorators.exceptions import (ParameterException, RequestException,
-                                     SnapshotNotExistingException,
-                                     UserUnidentifiedException)
+from ..decorators.exceptions import (
+    ParameterException,
+    RequestException,
+    SnapshotNotExistingException,
+    UserUnidentifiedException,
+)
 from ..decorators.restplus import api
-from ..decorators.serializers import (snapshot_add_input, snapshot_add_output,
-                                      snapshot_delete_input,
-                                      snapshot_delete_output,
-                                      snapshot_list_input,
-                                      snapshot_list_output,
-                                      snapshot_load_input,
-                                      snapshot_load_output,
-                                      snapshot_update_input,
-                                      snapshot_update_output)
+from ..decorators.serializers import (
+    snapshot_add_input,
+    snapshot_add_output,
+    snapshot_delete_input,
+    snapshot_delete_output,
+    snapshot_list_input,
+    snapshot_list_output,
+    snapshot_load_input,
+    snapshot_load_output,
+    snapshot_update_input,
+    snapshot_update_output,
+)
 from ..decorators.timeout import return_on_timeout_endpoint
 from ..models.snapshots import Snapshots
 from ..models.user import User

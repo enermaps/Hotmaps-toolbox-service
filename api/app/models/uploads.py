@@ -15,15 +15,13 @@ import pyproj
 import requests
 import shapely.geometry as shapely_geom
 import shapely.wkt as shapely_wkt
-from app import celery, model
+from app import celery, constants
+from app import dbGIS as db
+from app import helper, model
+from app.decorators.exceptions import RequestException
 from geojson import Feature, FeatureCollection
 from pandas import DataFrame
 from shapely.ops import transform
-
-from app import constants
-from app import dbGIS as db
-from app import helper
-from app.decorators.exceptions import RequestException
 
 ALLOWED_EXTENSIONS = set(["tif", "csv"])
 GREATER_OR_EQUAL = "greaterOrEqual"

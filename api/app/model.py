@@ -1,12 +1,21 @@
 import uuid
 
 import app.helper
-from app.decorators.exceptions import (HugeRequestException,
-                                       NotEnoughPointsException,
-                                       RequestException, ValidationError)
+from app.decorators.exceptions import (
+    HugeRequestException,
+    NotEnoughPointsException,
+    RequestException,
+    ValidationError,
+)
 
-from .helper import (area_to_geom, commands_in_array, generate_csv_name,
-                     projection_4326_to_3035, run_command, write_wkt_csv)
+from .helper import (
+    area_to_geom,
+    commands_in_array,
+    generate_csv_name,
+    projection_4326_to_3035,
+    run_command,
+    write_wkt_csv,
+)
 
 try:
     from shlex import quote
@@ -16,11 +25,9 @@ except ImportError:
 import os
 import sqlite3
 import subprocess
-import flask
-from app.constants import DATASET_DIRECTORY, USER_DB,HOST_DB,PASSWORD_DB,PORT_DB,DATABASE_DB
-from app.constants import DATASET_DIRECTORY, UPLOAD_DIRECTORY, NUTS_YEAR, LAU_YEAR
 from datetime import datetime
 
+import flask
 import psycopg2
 import shapely.geometry as shapely_geom
 import sqlalchemy.pool as pool
@@ -28,8 +35,17 @@ from app import celery, constants
 from app import dbGIS as db
 from app import helper, sql_queries
 from app.constants import (
-    CM_DB_NAME, DATABASE_DB, DATASET_DIRECTORY, HOST_DB, LAU_YEAR, NUTS_YEAR,
-    PASSWORD_DB, PORT_DB, UPLOAD_DIRECTORY, USER_DB)
+    CM_DB_NAME,
+    DATABASE_DB,
+    DATASET_DIRECTORY,
+    HOST_DB,
+    LAU_YEAR,
+    NUTS_YEAR,
+    PASSWORD_DB,
+    PORT_DB,
+    UPLOAD_DIRECTORY,
+    USER_DB,
+)
 
 from .models.uploads import Uploads, generate_csv_string
 
@@ -515,9 +531,11 @@ def get_raster_from_csv(wkt_point, layer_needed, output_directory):
             type = layer["name"]
             id = 0
         if id == 0:
-            directory = layer['workspaceName']
-            filename = layer['workspaceName'] + ".tif"
-            path_to_dataset = flask.safe_join(DATASET_DIRECTORY, directory, 'data', filename)
+            directory = layer["workspaceName"]
+            filename = layer["workspaceName"] + ".tif"
+            path_to_dataset = flask.safe_join(
+                DATASET_DIRECTORY, directory, "data", filename
+            )
         else:
             upload = Uploads.query.get(layer["id"])
             path_to_dataset = upload.url
@@ -554,9 +572,11 @@ def clip_raster_from_shapefile(shapefile_path, layer_needed, output_directory):
             type = layer["name"]
             id = 0
         if id == 0:
-            directory = layer['workspaceName']
-            filename = layer['workspaceName'] + ".tif"
-            path_to_dataset = flask.safe_join(DATASET_DIRECTORY, directory, 'data', filename)
+            directory = layer["workspaceName"]
+            filename = layer["workspaceName"] + ".tif"
+            path_to_dataset = flask.safe_join(
+                DATASET_DIRECTORY, directory, "data", filename
+            )
         else:
             upload = Uploads.query.filter_by(id=layer["id"]).first()
             path_to_dataset = upload.url

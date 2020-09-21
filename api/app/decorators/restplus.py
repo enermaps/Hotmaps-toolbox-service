@@ -5,20 +5,24 @@ from flask_restplus import Api
 from sqlalchemy.orm.exc import NoResultFound
 
 from .. import constants
-from ..decorators.exceptions import (ActivationException, HugeRequestException,
-                                     IntersectionException,
-                                     NotEnoughPointsException,
-                                     NotEnoughSpaceException,
-                                     ParameterException, RequestException,
-                                     SnapshotNotExistingException,
-                                     TimeOutException,
-                                     UploadFileNotExistingException,
-                                     UploadNotExistingException,
-                                     UserDoesntOwnUploadsException,
-                                     UserExistingException,
-                                     UserNotActivatedException,
-                                     UserUnidentifiedException,
-                                     WrongCredentialException)
+from ..decorators.exceptions import (
+    ActivationException,
+    HugeRequestException,
+    IntersectionException,
+    NotEnoughPointsException,
+    NotEnoughSpaceException,
+    ParameterException,
+    RequestException,
+    SnapshotNotExistingException,
+    TimeOutException,
+    UploadFileNotExistingException,
+    UploadNotExistingException,
+    UserDoesntOwnUploadsException,
+    UserExistingException,
+    UserNotActivatedException,
+    UserUnidentifiedException,
+    WrongCredentialException,
+)
 
 log = logging.getLogger(__name__)
 
