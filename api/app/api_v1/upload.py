@@ -6,33 +6,51 @@ from io import BytesIO
 
 import shapely.geometry as shapely_geom
 from app import celery
-from app.constants import (LAU_YEAR, NUTS_YEAR, UPLOAD_BASE_NAME,
-                           UPLOAD_DIRECTORY, USER_UPLOAD_FOLDER)
+from app.constants import (
+    LAU_YEAR,
+    NUTS_YEAR,
+    UPLOAD_BASE_NAME,
+    UPLOAD_DIRECTORY,
+    USER_UPLOAD_FOLDER,
+)
 from flask import send_file
 from flask_restplus import Resource
 
 from .. import dbGIS as db
 from ..decorators.parsers import file_upload
-from ..decorators.restplus import (HugeRequestException,
-                                   NotEnoughPointsException,
-                                   ParameterException, RequestException,
-                                   UploadFileNotExistingException,
-                                   UploadNotExistingException,
-                                   UserDoesntOwnUploadsException,
-                                   UserUnidentifiedException, api)
-from ..decorators.serializers import (upload_add_output, upload_delete_input,
-                                      upload_delete_output,
-                                      upload_download_input,
-                                      upload_export_cm_layer_input,
-                                      upload_export_csv_hectare_input,
-                                      upload_export_csv_nuts_input,
-                                      upload_export_raster_hectare_input,
-                                      upload_export_raster_nuts_input,
-                                      upload_list_input, upload_list_output)
+from ..decorators.restplus import (
+    HugeRequestException,
+    NotEnoughPointsException,
+    ParameterException,
+    RequestException,
+    UploadFileNotExistingException,
+    UploadNotExistingException,
+    UserDoesntOwnUploadsException,
+    UserUnidentifiedException,
+    api,
+)
+from ..decorators.serializers import (
+    upload_add_output,
+    upload_delete_input,
+    upload_delete_output,
+    upload_download_input,
+    upload_export_cm_layer_input,
+    upload_export_csv_hectare_input,
+    upload_export_csv_nuts_input,
+    upload_export_raster_hectare_input,
+    upload_export_raster_nuts_input,
+    upload_list_input,
+    upload_list_output,
+)
 from ..decorators.timeout import return_on_timeout_endpoint
 from ..model import get_csv_from_hectare, get_csv_from_nuts
-from ..models.uploads import (Uploads, allowed_file, calculate_total_space,
-                              generate_geojson, generate_tiles)
+from ..models.uploads import (
+    Uploads,
+    allowed_file,
+    calculate_total_space,
+    generate_geojson,
+    generate_tiles,
+)
 from ..models.user import User
 
 nsUpload = api.namespace("upload", description="Operations related to file upload")

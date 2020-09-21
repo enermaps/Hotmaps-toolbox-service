@@ -7,9 +7,9 @@ from flask import Flask, g
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 import uuid
 
+import app.constants as constant
 import pika
 from app.decorators.restplus import api as api_rest_plus
-import app.constants as constant
 from celery import Celery
 from flask_cors import CORS
 from flask_login import LoginManager
@@ -72,7 +72,6 @@ class CalculationModuleRpcClient(object):
         return self.response
 
 
-
 dbGIS = SQLAlchemy()
 
 celery = Celery(
@@ -125,8 +124,7 @@ def create_app(config_name):
 
     api_rest_plus.add_namespace(nsSnapshot)
 
-    from .api_v1 import \
-        load_profile_namespace as main_heat_load_profile_namespace
+    from .api_v1 import load_profile_namespace as main_heat_load_profile_namespace
 
     api_rest_plus.add_namespace(main_heat_load_profile_namespace)
 
