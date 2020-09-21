@@ -18,7 +18,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 """__________________________________producer for COMPUTE_______________________________________________________"""
 
-
 class CalculationModuleRpcClient(object):
     def __init__(self):
         parameters = pika.URLParameters(constants.CELERY_BROKER_URL)
@@ -93,7 +92,9 @@ dbGIS = SQLAlchemy()
 mail = Mail()
 login_manager = LoginManager()
 
-
+def init_db():
+    """Create the database table if they don't exist yet
+    """
 def create_app(config_name):
     """
     Create app instance
@@ -134,6 +135,7 @@ def create_app(config_name):
 
     app.register_blueprint(api)
     dbGIS.init_app(app)
+    dbGIS.create_all()
     mail.init_app(app)
     login_manager.init_app(app, add_context_processor=False)
 
