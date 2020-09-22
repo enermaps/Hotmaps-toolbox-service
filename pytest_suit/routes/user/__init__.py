@@ -6,5 +6,8 @@ url = BASE_URL + "/users/login"
 
 payload = {"email": "hotmapstest@gmail.com", "password": "weqriogvyx"}
 
-output = requests.post(url, json=payload)
-test_token = output.json()["token"]
+resp = requests.post(url, json=payload)
+if not resp.ok:
+    raise Exception("Received an error upon login {}".format(resp.text))
+
+test_token = resp.json()["token"]
