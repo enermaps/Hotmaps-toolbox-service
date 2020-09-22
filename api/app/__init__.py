@@ -15,6 +15,7 @@ from flask_cors import CORS
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.schema import CreateSchema
 
 """__________________________________producer for COMPUTE_______________________________________________________"""
 
@@ -92,9 +93,10 @@ dbGIS = SQLAlchemy()
 mail = Mail()
 login_manager = LoginManager()
 
-def init_db():
+def create_db(app, engine):
     """Create the database table if they don't exist yet
     """
+
 def create_app(config_name):
     """
     Create app instance
@@ -103,6 +105,7 @@ def create_app(config_name):
     current_file_dir = os.path.dirname(os.path.abspath(__file__))
     cfg = os.path.join(current_file_dir, "config", config_name + ".py")
     app.config.from_pyfile(cfg)
+    print(app.config['SQLALCHEMY_DATABASE_URI'])
 
     # initialize extensions
     from .api_v1 import api
@@ -135,7 +138,9 @@ def create_app(config_name):
 
     app.register_blueprint(api)
     dbGIS.init_app(app)
-    dbGIS.create_all()
+    #create non existant tables
+    with app.app_context():
+        dbGIS.create_all()
     mail.init_app(app)
     login_manager.init_app(app, add_context_processor=False)
 

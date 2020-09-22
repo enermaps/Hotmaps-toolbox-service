@@ -7,11 +7,11 @@ API_PORT = os.environ.get("API_PORT")
 CLIENT_URL = os.environ.get("CLIENT_URL")
 
 # Database
-HOST_DB = os.environ.get("DB_HOST")
-PORT_DB = os.environ.get("DB_PORT")
-USER_DB = os.environ.get("DB_USER")
-PASSWORD_DB = os.environ.get("DB_PASSWORD")
-DATABASE_DB = os.environ.get("DB_DATABASE")
+HOST_DB = os.environ["DB_HOST"]
+PORT_DB = os.environ.get("DB_PORT", 5432)
+USER_DB = os.environ["DB_USER"]
+PASSWORD_DB = os.environ["DB_PASSWORD"]
+DATABASE_DB = os.environ["DB_DATABASE"]
 
 # Flask settings
 FLASK_SERVER_NAME = os.environ.get("FLASK_SERVER_NAME")
