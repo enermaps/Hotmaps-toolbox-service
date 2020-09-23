@@ -1,40 +1,33 @@
-import signal
-
-from app import helper, model
-from app.decorators.restplus import api
-from app.decorators.serializers import (
-    cm_id_input,
-    compution_module_class,
-    compution_module_list,
-    input_computation_module,
-    test_communication_cm,
-    uploadfile,
-)
-from app.model import getCMList, getUI, register_calulation_module
-from celery.task.control import revoke
-from flask import Response, current_app, jsonify, redirect, request, url_for
-
-from ..helper import commands_in_array, run_command
-from ..models.user import User
-
-nsCM = api.namespace("cm", description="Operations related to statistisdscs")
-
-ns = nsCM
 import json
 import os
+import signal
 
 import flask
 import requests
-from app import CalculationModuleRpcClient, celery
+from app import CalculationModuleRpcClient, celery, helper, model
 from app.constants import DATASET_DIRECTORY, UPLOAD_DIRECTORY
 from app.decorators.exceptions import ComputationalModuleError, ValidationError
-from flask import send_file, send_from_directory
+from app.decorators.restplus import api
+from app.decorators.serializers import (cm_id_input, compution_module_class,
+                                        compution_module_list,
+                                        input_computation_module,
+                                        test_communication_cm, uploadfile)
+from app.model import getCMList, getUI, register_calulation_module
+from celery.task.control import revoke
+from flask import (Response, current_app, jsonify, redirect, request,
+                   safe_join, send_file, send_from_directory, url_for)
 from flask_restplus import Resource
 
 from ..constants import DEFAULT_TIMEOUT
 from ..decorators.timeout import timeout_signal_handler
+from ..helper import commands_in_array, run_command
+from ..models.user import User
 
 # TODO Add url to find  right computation module
+
+nsCM = api.namespace("cm", description="Operations related to statistisdscs")
+
+ns = nsCM
 
 try:
     args = commands_in_array("chmod +x app/helper/gdal2tiles-multiprocess.py")
@@ -43,13 +36,9 @@ except WindowsError:
     pass
 # os.system(com_string)
 
-if not os.path.exists(UPLOAD_DIRECTORY):
-    os.makedirs(UPLOAD_DIRECTORY)
-    os.chmod(UPLOAD_DIRECTORY, 0o644)
+os.makedirs(UPLOAD_DIRECTORY, mode=0o644, exist_ok=True)
 
-if not os.path.exists(DATASET_DIRECTORY):
-    os.makedirs(DATASET_DIRECTORY)
-    os.chmod(DATASET_DIRECTORY, 0o777)
+os.makedirs(DATASET_DIRECTORY, mode=0o777, exist_ok=True)
 
 
 @ns.route("/list")
@@ -106,8 +95,8 @@ class getRasterTile(Resource):
         download a file from the main web service
         :return:
         """
-
-        tile_filename = UPLOAD_DIRECTORY + "/" + directory + "/%d/%d/%d.png" % (z, x, y)
+        tile_directory = safe_join(UPLOAD_DIRECTORY, directory)
+        tile_filename = safe_join(tile_directory, "/%d/%d/%d.png" % (z, x, y))
         if not os.path.exists(tile_filename):
             if not os.path.exists(os.path.dirname(tile_filename)):
                 os.makedirs(os.path.dirname(tile_filename))
@@ -116,21 +105,6 @@ class getRasterTile(Resource):
             # return Response(open(tile_filename).read())
         except:
             return None
-
-
-def registerCM(input):
-    register_calulation_module(input)
-    return input
-
-
-def savefile(filename, url):
-    r = requests.get(url, stream=True)
-    if r.status_code == 200:
-        path = os.path.join(UPLOAD_DIRECTORY, filename)
-        with open(path, "wb") as f:
-            for chunk in r.iter_content(1024):
-                f.write(chunk)
-    return path
 
 
 @celery.task(name="Compute-async")
@@ -252,15 +226,10 @@ def generateTiles(raster_layers):
         directory_for_tiles = file_path_input.replace(".tif", "")
         file_path_output = helper.generate_geotif_name(UPLOAD_DIRECTORY)
         tile_path = directory_for_tiles
-        access_rights = 0o755
         try:
-            os.mkdir(tile_path, access_rights)
-
+            os.mkdir(tile_path, mode=0o755)
         except OSError:
-            pass
             print("Creation of the directory %s failed" % tile_path)
-        else:
-            pass
 
         if layer_type == "custom":
             # convert tif file into geotif file
