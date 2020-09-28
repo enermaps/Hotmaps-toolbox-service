@@ -113,7 +113,7 @@ class StatsLayersNutsInArea(Resource):
 
 
 @ns.route("/layers/hectares")
-@api.response(0, "Request too big")
+@api.response(413, "Request too big")
 @api.response(404, "No data found for that specific area.")
 @api.response(530, "Request error.")
 @api.response(531, "Missing parameter.")
@@ -178,7 +178,7 @@ class StatsLayersHectareMulti(Resource):
 
 
 @ns.route("/energy-mix/nuts-lau")
-@api.response(0, "Request too big")
+@api.response(413, "Request too big")
 @api.response(404, "No data found for that specific list of NUTS.")
 @api.response(530, "Request error.")
 @api.response(531, "Missing parameter.")

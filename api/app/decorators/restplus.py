@@ -4,8 +4,8 @@ import traceback
 from flask_restplus import Api
 from sqlalchemy.orm.exc import NoResultFound
 
-from .. import constants
-from ..decorators.exceptions import (
+from app import constants
+from app.decorators.exceptions import (
     ActivationException,
     HugeRequestException,
     IntersectionException,
@@ -73,9 +73,9 @@ def handle_too_big_request(error):
     message = "Your request is too big for the server"
     response = {
         "message": message,
-        "error": {"message": message, "status": "532", "statusText": "HUGE REQUEST"},
+        "error": {"message": message, "status": "413", "statusText": "HUGE REQUEST"},
     }
-    return response, 532
+    return response, 413
 
 
 @api.errorhandler(IntersectionException)

@@ -16,9 +16,9 @@ from app.constants import (
 from flask import send_file
 from flask_restplus import Resource
 
-from .. import dbGIS as db
-from ..decorators.parsers import file_upload
-from ..decorators.restplus import (
+import app.dbGIS as db
+from app.decorators.parsers import file_upload
+from app.decorators.restplus import (
     HugeRequestException,
     NotEnoughPointsException,
     ParameterException,
@@ -29,7 +29,7 @@ from ..decorators.restplus import (
     UserUnidentifiedException,
     api,
 )
-from ..decorators.serializers import (
+from app.decorators.serializers import (
     upload_add_output,
     upload_delete_input,
     upload_delete_output,
@@ -42,16 +42,16 @@ from ..decorators.serializers import (
     upload_list_input,
     upload_list_output,
 )
-from ..decorators.timeout import return_on_timeout_endpoint
-from ..model import get_csv_from_hectare, get_csv_from_nuts
-from ..models.uploads import (
+from app.decorators.timeout import return_on_timeout_endpoint
+from app.model import get_csv_from_hectare, get_csv_from_nuts
+from app.models.uploads import (
     Uploads,
     allowed_file,
     calculate_total_space,
     generate_geojson,
     generate_tiles,
 )
-from ..models.user import User
+from app.models.user import User
 
 nsUpload = api.namespace("upload", description="Operations related to file upload")
 ns = nsUpload
@@ -60,7 +60,7 @@ ns = nsUpload
 @ns.route("/add")
 @api.response(530, "Request error")
 @api.response(531, "Missing parameter")
-@api.response(539, "User Unidentified")
+@api.response(401, "User Unidentified")
 @api.response(542, "Not Enough Space")
 class AddUploads(Resource):
     @return_on_timeout_endpoint()
@@ -99,9 +99,9 @@ class AddUploads(Resource):
                 wrong_parameter.append("layer")
 
         # raise exception if parameters are false
-        if len(wrong_parameter) > 0:
+        if wrong_parameter:
             exception_message = ""
-            for i in range(len(wrong_parameter)):
+            for i, wrong_parameter in range(len(wrong_parameter)):
                 exception_message += wrong_parameter[i]
                 if i != len(wrong_parameter) - 1:
                     exception_message += ", "
@@ -178,7 +178,7 @@ class TilesUploads(Resource):
 
         # check token
         user = User.verify_auth_token(token)
-        if user is None:
+        if not user:
             raise UserUnidentifiedException
 
         # find upload to display
@@ -384,9 +384,9 @@ class ExportCMLayer(Resource):
 
 
 @ns.route("/export/raster/nuts")
-@api.response(530, "Request error")
+@api.response(400, "Request error")
 @api.response(531, "Missing Parameters")
-@api.response(532, "Request too big")
+@api.response(413, "Request too big")
 class ExportRasterNuts(Resource):
     @return_on_timeout_endpoint()
     @api.expect(upload_export_raster_nuts_input)
@@ -505,7 +505,7 @@ class ExportRasterNuts(Resource):
 @ns.route("/export/raster/hectare")
 @api.response(530, "Request error")
 @api.response(531, "Missing Parameters")
-@api.response(532, "Request too big")
+@api.response(413, "Request too big")
 class ExportRasterHectare(Resource):
     @return_on_timeout_endpoint()
     @api.expect(upload_export_raster_hectare_input)
@@ -519,11 +519,11 @@ class ExportRasterHectare(Resource):
         wrong_parameter = []
         try:
             year = api.payload["year"]
-        except:
+        except KeyError:
             wrong_parameter.append("year")
         try:
             layers = api.payload["layers"]
-        except:
+        except KeyError:
             wrong_parameter.append("layers")
         try:
             areas = api.payload["areas"]
@@ -532,11 +532,11 @@ class ExportRasterHectare(Resource):
                     for test_point in test_area["points"]:
                         try:
                             test_lng = test_point["lng"]
-                        except:
+                        except KeyError:
                             wrong_parameter.append("lng")
                         try:
                             test_lat = test_point["lat"]
-                        except:
+                        except KeyError:
                             wrong_parameter.append("lat")
                 except:
                     wrong_parameter.append("points")
@@ -616,7 +616,7 @@ class ExportRasterHectare(Resource):
 @ns.route("/export/csv/nuts")
 @api.response(530, "Request error")
 @api.response(531, "Missing Parameters")
-@api.response(532, "Request too big")
+@api.response(413, "Request too big")
 class ExportCsvNuts(Resource):
     @return_on_timeout_endpoint()
     @api.expect(upload_export_csv_nuts_input)
@@ -669,7 +669,7 @@ class ExportCsvNuts(Resource):
 @ns.route("/export/csv/hectare")
 @api.response(530, "Request error")
 @api.response(531, "Missing Parameters")
-@api.response(532, "Request too big")
+@api.response(413, "Request too big")
 class ExportCsvHectare(Resource):
     @return_on_timeout_endpoint()
     @api.expect(upload_export_csv_hectare_input)

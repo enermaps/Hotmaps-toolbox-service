@@ -43,7 +43,7 @@ class HeatLoadProfileResource(Resource):
 
 
 @ns.route("/duration-curve/nuts-lau")
-@api.response(0, "Request too big")
+@api.response(413, "Request too big")
 @api.response(404, "No data found for that specific list of NUTS.")
 @api.response(530, "Request error.")
 @api.response(531, "Missing parameter.")
@@ -99,7 +99,7 @@ def durationCurveNutsLau(year, nuts):
 
 
 @ns.route("/duration-curve/hectares")
-@api.response(0, "Request too big")
+@api.response(413, "Request too big")
 @api.response(404, "No data found for that specific area.")
 @api.response(530, "Request error.")
 @api.response(531, "Missing parameter.")
@@ -194,7 +194,7 @@ def durationCurveHectare(areas, year):
 
 
 @ns.route("/hectares")
-@api.response(0, "Request too big")
+@api.response(413, "Request too big")
 @api.response(404, "No data found for that specific area.")
 @api.response(530, "Request error.")
 @api.response(531, "Missing parameter.")
@@ -277,7 +277,7 @@ class HeatLoadProfileAggregationHectares(HeatLoadProfileResource):
 
 
 @ns.route("/nuts-lau")
-@api.response(0, "Request too big")
+@api.response(413, "Request too big")
 @api.response(404, "No data found for that specific list of NUTS.")
 @api.response(530, "Request error.")
 @api.response(531, "Missing parameter.")
