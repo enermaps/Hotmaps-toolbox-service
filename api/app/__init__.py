@@ -147,18 +147,20 @@ def create_app(config_name):
     geoserver_cors = os.environ.get("GEOSERVER_URL", "")
     www_cors = os.environ.get("CLIENT_URL", "")
 
+    origins = {geoserver_cors,
+              www_cors,
+              "http://maps.googleapis.com/"
+              "http://maps.googleapis.com/maps/api/geocode/",
+              "http://maps.googleapis.com/maps/api/",
+              "http://maps.googleapis.com/*",
+    }
+    if app.debug:
+        origins = {'*'}
     CORS(
         app,
         resources={
             r"/api/*": {
-                "origins": {
-                    geoserver_cors,
-                    www_cors,
-                    "http://maps.googleapis.com/"
-                    "http://maps.googleapis.com/maps/api/geocode/",
-                    "http://maps.googleapis.com/maps/api/",
-                    "http://maps.googleapis.com/*",
-                }
+                "origins": origins
             }
         },
     )
