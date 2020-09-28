@@ -25,7 +25,7 @@ EXPOSE 80
 
 # copy supervisord service over
 RUN mkdir -p /var/log/supervisor
-COPY supervisord.conf /etc/supervisor/supervisor.conf
+COPY supervisord.conf /etc/supervisor.conf
 
 # Start processes
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisor.conf"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor.conf"]
