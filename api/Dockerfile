@@ -20,6 +20,20 @@ RUN pip3 install -r /api/requirements.txt
 COPY . .
 COPY local_flask.sh /bin/local_flask
 
+#cleanup buid tools
+RUN apt-get remove --yes \
+    python-numpy \
+    cmake \
+    openssh-client \
+    build-essential \
+    wget \
+    gcc \
+    perl-modules \
+    git \
+    ssh &&  \
+    apt-get autoremove --yes
+
+
 
 EXPOSE 80
 
