@@ -1,55 +1,34 @@
+import json
+import os
 import signal
 
-from app import helper, model
+import flask
+import requests
+from app import CalculationModuleRpcClient, celery, helper, model
+from app.constants import DATASET_DIRECTORY, DEFAULT_TIMEOUT, UPLOAD_DIRECTORY
+from app.decorators.exceptions import ComputationalModuleError, ValidationError
 from app.decorators.restplus import api
-from app.decorators.serializers import (
-    cm_id_input,
-    compution_module_class,
-    compution_module_list,
-    input_computation_module,
-    test_communication_cm,
-    uploadfile,
-)
+from app.decorators.serializers import (cm_id_input, compution_module_class,
+                                        compution_module_list,
+                                        input_computation_module,
+                                        test_communication_cm, uploadfile)
+from app.decorators.timeout import timeout_signal_handler
+from app.helper import commands_in_array, run_command
 from app.model import getCMList, getUI, register_calulation_module
+from app.models.user import User
 from celery.task.control import revoke
-from flask import Response, current_app, jsonify, redirect, request, url_for
-
-from ..helper import commands_in_array, run_command
-from ..models.user import User
+from flask import (Response, current_app, jsonify, redirect, request,
+                   send_file, send_from_directory, url_for)
+from flask_restplus import Resource
 
 nsCM = api.namespace("cm", description="Operations related to statistisdscs")
 
 ns = nsCM
-import json
-import os
-
-import flask
-import requests
-from app import CalculationModuleRpcClient, celery
-from app.constants import DATASET_DIRECTORY, UPLOAD_DIRECTORY
-from app.decorators.exceptions import ComputationalModuleError, ValidationError
-from flask import send_file, send_from_directory
-from flask_restplus import Resource
-
-from ..constants import DEFAULT_TIMEOUT
-from ..decorators.timeout import timeout_signal_handler
 
 # TODO Add url to find  right computation module
 
-try:
-    args = commands_in_array("chmod +x app/helper/gdal2tiles-multiprocess.py")
-    run_command(args)
-except WindowsError:
-    pass
-# os.system(com_string)
-
-if not os.path.exists(UPLOAD_DIRECTORY):
-    os.makedirs(UPLOAD_DIRECTORY)
-    os.chmod(UPLOAD_DIRECTORY, 0o644)
-
-if not os.path.exists(DATASET_DIRECTORY):
-    os.makedirs(DATASET_DIRECTORY)
-    os.chmod(DATASET_DIRECTORY, 0o777)
+os.makedirs(UPLOAD_DIRECTORY, mode=0o644, exist_ok=True)
+os.makedirs(DATASET_DIRECTORY, mode=0o777, exist_ok=True)
 
 
 @ns.route("/list")
@@ -71,8 +50,8 @@ class ComputationModuleClass(Resource):
         Returns the user interface of a specifique calculation module
         :return:
         """
-        input = request.get_json()
-        cm_id = input["cm_id"]
+        cm_resp = request.get_json()
+        cm_id = cm_resp["cm_id"]
         return getUI(cm_id)
 
 
