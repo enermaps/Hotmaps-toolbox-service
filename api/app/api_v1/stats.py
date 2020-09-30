@@ -75,28 +75,9 @@ class StatsLayersNutsInArea(Resource):
         """
         # try:
         # Entries
-        wrong_parameter = []
-        try:
-            year = api.payload["year"]
-        except:
-            wrong_parameter.append("year")
-        try:
-            layersPayload = api.payload["layers"]
-        except:
-            wrong_parameter.append("layers")
-        try:
-            nuts = api.payload["nuts"]
-        except:
-            wrong_parameter.append("nuts")
-        # raise exception if parameters are false
-        if len(wrong_parameter) > 0:
-            exception_message = ""
-            for i in range(len(wrong_parameter)):
-                exception_message += wrong_parameter[i]
-                if i != len(wrong_parameter) - 1:
-                    exception_message += ", "
-            raise ParameterException(exception_message + "")
-
+        year = api.payload["year"]
+        layersPayload = api.payload["layers"]
+        nuts = api.payload["nuts"]
         # Stop execution if layers list or nuts list is empty
         if not layersPayload or not nuts:
             return
@@ -132,14 +113,7 @@ class StatsLayersHectareMulti(Resource):
         # Entries
         wrong_parameter = []
         layersPayload = api.payload["layers"]
-        try:
-            year = api.payload["year"]
-        except:
-            wrong_parameter.append("year")
-        try:
-            layersPayload = api.payload["layers"]
-        except:
-            wrong_parameter.append("layers")
+        year = api.payload["year"]
         try:
             areas = api.payload["areas"]
             for test_area in areas:
@@ -192,20 +166,7 @@ class StatsLayersNutsInArea(Resource):
         :return:
         """
         # Entries
-        wrong_parameter = []
-        try:
-            nuts = api.payload["nuts"]
-        except:
-            wrong_parameter.append("nuts")
-
-        # raise exception if parameters are false
-        if len(wrong_parameter) > 0:
-            exception_message = ""
-            for i in range(len(wrong_parameter)):
-                exception_message += wrong_parameter[i]
-                if i != len(wrong_parameter) - 1:
-                    exception_message += ", "
-            raise ParameterException(str(exception_message))
+        nuts = api.payload["nuts"]
 
         res = ElectricityMix.getEnergyMixNutsLau(adapt_nuts_list(nuts))
         return res
