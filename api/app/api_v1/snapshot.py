@@ -1,15 +1,15 @@
 from app import celery
 from flask_restplus import Resource
 
-from .. import dbGIS as db
-from ..decorators.exceptions import (
+from app import dbGIS as db
+from app.decorators.exceptions import (
     ParameterException,
     RequestException,
     SnapshotNotExistingException,
     UserUnidentifiedException,
 )
-from ..decorators.restplus import api
-from ..decorators.serializers import (
+from app.decorators.restplus import api
+from app.decorators.serializers import (
     snapshot_add_input,
     snapshot_add_output,
     snapshot_delete_input,
@@ -21,9 +21,9 @@ from ..decorators.serializers import (
     snapshot_update_input,
     snapshot_update_output,
 )
-from ..decorators.timeout import return_on_timeout_endpoint
-from ..models.snapshots import Snapshots
-from ..models.user import User
+from app.decorators.timeout import return_on_timeout_endpoint
+from app.models.snapshots import Snapshots
+from app.models.user import User
 
 nsSnapshot = api.namespace("snapshot", description="Operations related to snapshots")
 ns = nsSnapshot
@@ -44,26 +44,21 @@ class AddSnapshot(Resource):
         :return:
         """
         # Entries
-        wrong_parameter = []
+        wrong_parameters = []
         try:
             token = api.payload["token"]
         except:
-            wrong_parameter.append("token")
+            wrong_parameters.append("token")
         try:
             config = api.payload["config"]
         except:
-            wrong_parameter.append("config")
+            wrong_parameters.append("config")
 
-        if len(wrong_parameter) > 0:
-            exception_message = ""
-            for i in range(len(wrong_parameter)):
-                exception_message += wrong_parameter[i]
-                if i != len(wrong_parameter) - 1:
-                    exception_message += ", "
-            raise ParameterException(str(exception_message))
+        if wrong_parameters:
+            raise ParameterException(", ".join(wrong_parameters))
         # check token
         user = User.verify_auth_token(token)
-        if user is None:
+        if not user:
             raise UserUnidentifiedException
 
         snapshot = Snapshots(config=config, user_id=user.id)
@@ -83,39 +78,34 @@ class LoadSnapshot(Resource):
     @return_on_timeout_endpoint()
     @api.marshal_with(snapshot_load_output)
     @api.expect(snapshot_load_input)
-    @celery.task(name="load a snapshot")
+    #@celery.task(name="load a snapshot")
     def post(self):
         """
         The method called to load a snapshot of the connected user
         :return:
         """
         # Entries
-        wrong_parameter = []
+        wrong_parameters = []
         try:
             token = api.payload["token"]
         except:
-            wrong_parameter.append("token")
+            wrong_parameters.append("token")
         try:
             id = api.payload["id"]
         except:
-            wrong_parameter.append("id")
+            wrong_parameters.append("id")
 
-        if len(wrong_parameter) > 0:
-            exception_message = ""
-            for i in range(len(wrong_parameter)):
-                exception_message += wrong_parameter[i]
-                if i != len(wrong_parameter) - 1:
-                    exception_message += ", "
-            raise ParameterException(str(exception_message))
+        if wrong_parameters:
+            raise ParameterException(", ".join(wrong_parameters))
 
         # check token
         user = User.verify_auth_token(token)
-        if user is None:
+        if not user:
             raise UserUnidentifiedException
 
         snapshot = Snapshots.query.filter_by(id=id).first()
 
-        if snapshot is None:
+        if not snapshot:
             raise SnapshotNotExistingException
 
         if snapshot.user_id != user.id:
@@ -134,7 +124,7 @@ class DeleteSnapshot(Resource):
     @return_on_timeout_endpoint()
     @api.marshal_with(snapshot_delete_output)
     @api.expect(snapshot_delete_input)
-    @celery.task(name="delete a snapshot")
+    #@celery.task(name="delete a snapshot")
     def delete(self):
         """
         The method called to delete a snapshot of the connected user

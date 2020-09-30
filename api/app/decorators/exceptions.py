@@ -27,7 +27,7 @@ class ParameterException(Exception):
     Exception raised when the parameters entered are false
     """
 
-    def __init__(*args):
+    def __init__(self, *args):
         super().__init__(", ".join(args))
 
 class TimeoutException(Exception):
