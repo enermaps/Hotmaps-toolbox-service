@@ -1,4 +1,5 @@
 import signal
+from functools import wraps
 
 from ..constants import DEFAULT_TIMEOUT
 from .exceptions import TimeOutException
@@ -21,8 +22,8 @@ def return_on_timeout_endpoint(timeout_value: int = DEFAULT_TIMEOUT):
     :param timeout_value:the timeout before leaving the function in seconds, default corresponding to the config file
     :return:
     """
-
     def decorate(f):
+        @wraps(f)
         def applicator(*args, **kwargs):
             try:
                 signal.signal(signal.SIGALRM, timeout_signal_handler)

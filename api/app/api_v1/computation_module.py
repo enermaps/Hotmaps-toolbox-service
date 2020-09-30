@@ -34,6 +34,13 @@ os.makedirs(DATASET_DIRECTORY, mode=0o777, exist_ok=True)
 @ns.route("/list")
 class ComputationModuleList(Resource):
     # @api.marshal_with(stats_layers_nuts_output)
+    def get(self):
+        """
+        Returns the list of the available calculation module
+        :return:
+        """
+        return getCMList()
+
     def post(self):
         """
         Returns the list of the available calculation module
@@ -295,7 +302,7 @@ def generate_payload_for_compute(
 class ComputationModuleClass(Resource):
     def post(self):
         """
-        retrieve a request from the from end
+        Retrieve a request from the from end.
         :return:
         """
         app = current_app._get_current_object()
@@ -311,36 +318,37 @@ class ComputationModuleClass(Resource):
 @ns.route("/status/<string:task_id>", methods=["GET"])
 class ComputationTaskStatus(Resource):
     def get(self, task_id):
-        response = None
+        """Return the status of a calculation module task.
+        """
         task = computeTask.AsyncResult(task_id)
 
         if task.state == "PENDING":
-            response = {
+            return {
                 "state": task.state,
                 "current": 0,
                 "total": 1,
                 "status": "Pending...",
             }
-        elif task.state != "FAILURE":
-            response = {
+        if task.state != "FAILURE":
+            return {
                 "state": task.state,
                 "current": task.info.get("current", 0),
                 "total": task.info.get("total", 1),
                 "status": task.info,
             }
 
-        else:
             # something went wrong in the background job
-            response = {
-                "state": task.state,
-                "current": 1,
-                "total": 1,
-                "status": task.info,  # this is the exception raised
-            }
-        return response
+        return {
+            "state": task.state,
+            "current": 1,
+            "total": 1,
+            "status": task.info,  # this is the exception raised
+        }
 
 
 @ns.route("/delete/<string:task_id>", methods=["DELETE"])
 class DeleteTask(Resource):
     def delete(self, task_id):
+        """Abort a calculation module task
+        """
         return revoke(task_id, terminate=True)

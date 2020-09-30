@@ -445,7 +445,7 @@ load_profile_aggregation_hectares_output = api.model(
 stats_list_nuts_input = api.model(
     "Input  list of nuts ",
     {
-        "nuts": fields.List(fields.String(descriptions="List of NUTS")),
+        "nuts": fields.List(fields.String(descriptions="List of NUTS"), required=True),
     },
 )
 
@@ -478,10 +478,10 @@ stats_list_label_dataset = api.model(
 stats_layers_nuts_input = api.model(
     "Input for statistics on layers, list of nuts and year",
     {
-        "layers": fields.List(fields.String(description="Layer")),
-        "nuts": fields.List(fields.String(descriptions="List of NUTS")),
+        "year": fields.Integer(description="Year", required=True),
+        "layers": fields.List(fields.String(description="Layer"), required=True),
+        "nuts": fields.List(fields.String(descriptions="List of NUTS"), required=True),
         "scale_level": fields.String(descriptions="Scale level"),
-        "year": fields.Integer(description="Year"),
     },
 )
 
@@ -509,8 +509,8 @@ inputs_module = api.model(
 stats_layers_hectares_input = api.model(
     "Input for statistics on layers, hectares and year",
     {
-        "layers": fields.List(fields.String(description="Layer")),
-        "areas": fields.List(fields.Nested(area)),
+        "layers": fields.List(fields.String(description="Layer"), required=True),
+        "areas": fields.List(fields.Nested(area), required=True),
         "year": fields.Integer(description="Year"),
         "scale_level": fields.String(description="Scale level"),
     },
@@ -545,10 +545,10 @@ uploadfile = api.model(
 user_register_input = api.model(
     "input for user registration",
     {
-        "first_name": fields.String(description="first name"),
-        "last_name": fields.String(description="last name"),
-        "email": fields.String(description="email"),
-        "password": fields.String(description="password"),
+        "first_name": fields.String(description="first name", required=True),
+        "last_name": fields.String(description="last name", required=True),
+        "email": fields.String(description="email", required=True),
+        "password": fields.String(description="password", required=True),
     },
 )
 
@@ -604,8 +604,8 @@ user_ask_recovery_output = api.model(
 user_recovery_input = api.model(
     "input for user password recovery",
     {
-        "token": fields.String(description="token"),
-        "password": fields.String(description="password"),
+        "token": fields.String(description="token", required=True),
+        "password": fields.String(description="password", required=True),
     },
 )
 
@@ -651,9 +651,9 @@ user_logout_output = api.model(
 user_profile_input = api.model(
     "input for user profile modifying",
     {
-        "token": fields.String(description="authentification token"),
-        "first_name": fields.String(description="first name"),
-        "last_name": fields.String(description="last name"),
+        "token": fields.String(description="authentification token", required=True),
+        "first_name": fields.String(description="first name", required=True),
+        "last_name": fields.String(description="last name", required=True),
     },
 )
 
@@ -724,7 +724,7 @@ upload_list_output = api.model(
 upload_space_used_input = api.model(
     "input for uploads space used function",
     {
-        "token": fields.String(description="authentification token"),
+        "token": fields.String(description="authentification token", required=True),
     },
 )
 

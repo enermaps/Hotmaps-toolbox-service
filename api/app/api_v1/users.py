@@ -101,7 +101,7 @@ class AskingPasswordRecovery(Resource):
         try:
             mail.send(msg)
         except Exception as e:
-            raise RequestException(str(e))
+                    raise RequestException(str(e))
 
         output = "request for recovery successful"
         # output
@@ -113,37 +113,22 @@ class AskingPasswordRecovery(Resource):
 @api.response(531, "Missing parameter")
 @api.response(536, "Activation failed")
 class RecoverPassword(Resource):
-    @return_on_timeout_endpoint()
-    @api.marshal_with(user_recovery_output)
     @api.expect(user_recovery_input)
-    @celery.task(name="method for recover of password")
+    @api.marshal_with(user_recovery_output)
+    @return_on_timeout_endpoint()
     def post(self):
         """
         Method to recover the password
         :return:
         """
         # Entries
-        wrong_parameter = []
-        try:
-            token = api.payload["token"]
-        except:
-            wrong_parameter.append("token")
-        try:
-            unencrypted_password = api.payload["password"]
-        except:
-            wrong_parameter.append("password")
-        # raise exception if parameters are false
-        if len(wrong_parameter) > 0:
-            exception_message = ""
-            for i in range(len(wrong_parameter)):
-                exception_message += wrong_parameter[i]
-                if i != len(wrong_parameter) - 1:
-                    exception_message += ", "
-            raise ParameterException(exception_message + "")
+        args = request.json
+        token = args["token"]
+        password = args["password"]
 
         # password_encryption
         password = bcrypt.using(salt=constants.FLASK_SALT).hash(
-            str(unencrypted_password)
+            password
         )
 
         # verify mail address
@@ -171,38 +156,17 @@ class UserRegistering(Resource):
     @return_on_timeout_endpoint()
     @api.marshal_with(user_register_output)
     @api.expect(user_register_input)
-    @celery.task(name="user registration")
+    #@celery.task(name="user registration")
     def post(self):
         """
         Returns the statistics for specific layers, area and year
         :return:
         """
         # Entries
-        wrong_parameter = []
-        try:
-            first_name = api.payload["first_name"]
-        except:
-            wrong_parameter.append("first_name")
-        try:
-            last_name = api.payload["last_name"]
-        except:
-            wrong_parameter.append("last_name")
-        try:
-            email = api.payload["email"]
-        except:
-            wrong_parameter.append("email")
-        try:
-            unencrypted_password = api.payload["password"]
-        except:
-            wrong_parameter.append("password")
-        # raise exception if parameters are false
-        if len(wrong_parameter) > 0:
-            exception_message = ""
-            for i in range(len(wrong_parameter)):
-                exception_message += wrong_parameter[i]
-                if i != len(wrong_parameter) - 1:
-                    exception_message += ", "
-            raise ParameterException(exception_message + "")
+        first_name = api.payload["first_name"]
+        last_name = api.payload["last_name"]
+        email = api.payload["email"]
+        unencrypted_password = api.payload["password"]
         # password_encryption
         try:
             password = bcrypt.using(salt=constants.FLASK_SALT).hash(
@@ -414,11 +378,10 @@ class LogoutUser(Resource):
 @api.response(530, "Request error")
 @api.response(531, "Missing parameter")
 @api.response(539, "User Unidentified")
+@api.expect(user_profile_input)
 class ProfileUser(Resource):
     @return_on_timeout_endpoint()
     @api.marshal_with(user_profile_output)
-    @api.expect(user_profile_input)
-    @celery.task(name="user profile update")
     def post(self):
         """
         The method called to update the profile of a user
@@ -510,10 +473,7 @@ class SpaceUsedUploads(Resource):
         :return:
         """
         # Entries
-        try:
-            token = api.payload["token"]
-        except KeyError:
-            raise ParameterException("token")
+        token = api.payload["token"]
 
         # check token
         user = User.verify_auth_token(token)
