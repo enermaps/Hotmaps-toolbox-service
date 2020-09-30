@@ -43,7 +43,7 @@ from app.decorators.serializers import (
 from app.decorators.timeout import return_on_timeout_endpoint
 from app.models.role import Role
 from app.models.user import User
-from flask import current_app, request
+from flask import current_app, request, safe_join
 from flask_mail import Message
 from flask_restplus import Resource
 from flask_security import SQLAlchemySessionUserDatastore
@@ -93,9 +93,8 @@ class AskingPasswordRecovery(Resource):
             + user.first_name
             + " "
             + user.last_name
-            + " you asked for a password recovery "
-            "on your HotMaps account,\n to reset your password, please click on the following link: "
-            "\n"
+            + " you asked for a password recovery on your HotMaps account,\n "
+            + "to reset your password, please click on the following link: \n"
             + link
             + "\n if you haven't ask for this modification, please delete this email."
         )
@@ -340,19 +339,19 @@ class LoginUser(Resource):
         :return:
         """
         # Entries
-        wrong_parameter = []
+        wrong_parameters = []
         try:
             email = api.payload["email"]
         except:
-            wrong_parameter.append("email")
+            wrong_parameters.append("email")
         try:
             password = api.payload["password"]
         except:
-            wrong_parameter.append("password")
+            wrong_parameters.append("password")
         # raise exception if parameters are false
-        if len(wrong_parameter) > 0:
+        if wrong_parameters:
             exception_message = ""
-            for i in range(len(wrong_parameter)):
+            for i, parameter in enumerate(wrong_parameter):
                 exception_message += wrong_parameter[i]
                 if i != len(wrong_parameter) - 1:
                     exception_message += ", "
@@ -426,31 +425,27 @@ class ProfileUser(Resource):
         :return:
         """
         # Entries
-        wrong_parameter = []
+        wrong_parameters = []
         try:
             token = api.payload["token"]
-        except:
-            wrong_parameter.append("token")
+        except KeyError:
+            wrong_parameters.append("token")
         try:
             first_name = api.payload["first_name"]
-        except:
-            wrong_parameter.append("first_name")
+        except KeyError:
+            wrong_parameters.append("first_name")
         try:
             last_name = api.payload["last_name"]
-        except:
-            wrong_parameter.append("last_name")
+        except KeyError:
+            wrong_parameters.append("last_name")
         # raise exception if parameters are false
-        if len(wrong_parameter) > 0:
-            exception_message = ""
-            for i in range(len(wrong_parameter)):
-                exception_message += wrong_parameter[i]
-                if i != len(wrong_parameter) - 1:
-                    exception_message += ", "
-            raise ParameterException(str(exception_message))
+        if wrong_parameters:
+            exception_message = ", ".join(wrong_parameters)
+            raise ParameterException(exception_message)
 
         # check token
         user = User.verify_auth_token(token)
-        if user is None:
+        if not user:
             raise UserUnidentifiedException
 
         # select and update the user
@@ -482,7 +477,7 @@ class GetUserInformation(Resource):
         # Entries
         try:
             token = api.payload["token"]
-        except:
+        except KeyError:
             raise ParameterException("token")
 
         # check token
@@ -517,12 +512,12 @@ class SpaceUsedUploads(Resource):
         # Entries
         try:
             token = api.payload["token"]
-        except:
+        except KeyError:
             raise ParameterException("token")
 
         # check token
         user = User.verify_auth_token(token)
-        if user is None:
+        if not user:
             raise UserUnidentifiedException
 
         # get the user uploads
@@ -611,24 +606,24 @@ class FeedbackUser(Resource):
             description,
         )
 
-        if "file" in args and args["file"] is not None:
-            file = args["file"]
-            filename = str(uuid.uuid4()) + "_" + file.filename
-            file_upload_path = flask.safe_join(constants.USER_UPLOAD_FOLDER, filename)
-            file.save(file_upload_path)
+        feedback_file = args.get("file")
+        if feedback_file:
+            filename = str(uuid.uuid4()) + "_" + feedback_file.filename
+            file_upload_path = safe_join(constants.USER_UPLOAD_FOLDER, filename)
+            feedback_file.save(file_upload_path)
             with open(file_upload_path, "rb") as f:
-                msg.attach(file.filename, "image/*", f.read())
+                msg.attach(feedback_file.filename, "image/*", f.read())
             os.remove(file_upload_path)
-        app = current_app._get_current_object()
         try:
-            self.send_async_mail(msg)
+            send_async_mail(msg)
         except Exception as e:
             raise RequestException(str(e))
 
         return {
-            "message": "Your feedback has been sent successfully. It will be examined and processed as soon as possible"
+            "message": "Your feedback has been sent successfully. "
+            "It will be examined and processed as soon as possible"
         }
 
-    @celery.task(name="send mail feedback")
-    def send_async_mail(msg):
-        mail.send(msg)
+@celery.task(name="send mail feedback")
+def send_async_mail(msg):
+    mail.send(msg)
