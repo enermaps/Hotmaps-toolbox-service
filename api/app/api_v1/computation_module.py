@@ -88,26 +88,24 @@ class getRasterTile(Resource):
 
         tile_filename = UPLOAD_DIRECTORY + "/" + directory + "/%d/%d/%d.png" % (z, x, y)
         if not os.path.exists(tile_filename):
-            if not os.path.exists(os.path.dirname(tile_filename)):
-                os.makedirs(os.path.dirname(tile_filename))
+            os.makedirs(os.path.dirname(tile_filename), exist_ok=True)
         try:
             return send_file(tile_filename, mimetype="image/png")
-            # return Response(open(tile_filename).read())
         except:
             return None
 
 
-def registerCM(input):
-    register_calulation_module(input)
-    return input
+def registerCM(cm_args):
+    register_calulation_module(cm_args)
+    return cm_args
 
 
 def savefile(filename, url):
-    r = requests.get(url, stream=True)
-    if r.status_code == 200:
-        path = os.path.join(UPLOAD_DIRECTORY, filename)
+    resp = requests.get(url, stream=True)
+    if resp.ok:
+        path = flask.safe_join(UPLOAD_DIRECTORY, filename)
         with open(path, "wb") as f:
-            for chunk in r.iter_content(1024):
+            for chunk in resp.iter_content(1024):
                 f.write(chunk)
     return path
 
@@ -236,7 +234,6 @@ def generateTiles(raster_layers):
             os.mkdir(tile_path, access_rights)
 
         except OSError:
-            pass
             print("Creation of the directory %s failed" % tile_path)
         else:
             pass
