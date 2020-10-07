@@ -14,11 +14,6 @@ RUN mkdir -p /var/hotmaps/users
 
 # Setup app server
 WORKDIR /api
-# Copy app source code
-ADD ./requirements.txt /api/requirements.txt
-RUN pip3 install -r /api/requirements.txt
-COPY . .
-COPY local_flask.sh /bin/local_flask
 
 #cleanup buid tools
 RUN apt-get remove --yes \
@@ -35,9 +30,16 @@ RUN apt-get remove --yes \
 
 EXPOSE 80
 
+# Copy app source code
+ADD ./requirements.txt /api/requirements.txt
+RUN pip3 install -r /api/requirements.txt
+
 # copy supervisord service over
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor.conf
+COPY local_flask.sh /bin/local_flask
+
+COPY . .
 
 # Start processes
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor.conf"]
