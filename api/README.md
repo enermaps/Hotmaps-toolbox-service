@@ -110,3 +110,6 @@ Note that if you build this image from scratch, uWSGI chdirs to root path of the
 
 **Special thanks** to the work done on the repository [https://github.com/atupal/dockerfile.flask-uwsgi-nginx](https://github.com/atupal/dockerfile.flask-uwsgi-nginx) that helped me build a basic and working setup of Flask, uWSGI and Nginx.
 
+### Modifications made by Cédric
+
+These are the modifications made by Cédric. Thanks for reading.
