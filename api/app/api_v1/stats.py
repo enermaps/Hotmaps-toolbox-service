@@ -294,7 +294,6 @@ class StatsPersonalLayers(Resource):
             min_tif = df.min().min()
             max_tif = df.max().max()
             density_tif = sum_tif / counted_cells
-
         # Assign indicator to results
         for column in (
             _["table_column"]
@@ -340,6 +339,176 @@ class StatsPersonalLayers(Resource):
 
         return values
 
+########################################################################################################################
+# Cédric modifications : START
+
+@ns.route("/cedric-personnal-layers")
+class StatsPersonalLayers(Resource):
+    @return_on_timeout_endpoint()
+    @api.marshal_with(stats_layers_nuts_output)
+    @api.expect(stats_layer_personnal_layer_input)
+    def post(self):
+        """
+        Cedric wrizReturns statistics for personal layers, area and year.
+		"""
+        noDataLayer = []
+        result = []
+        areas = api.payload["areas"]
+
+        # if api.payload['scale_level'] == 'hectare':
+        # 	areas = area_to_geom(api.payload['areas'])
+        # 	cutline_input = write_wkt_csv(generate_csv_name(constants.UPLOAD_DIRECTORY), areas) # TODO: Projection to 3035 if raster
+        # else:
+        # 	cutline_input = model.get_shapefile_from_selection(api.payload['scale_level'], areas, constants.UPLOAD_DIRECTORY, '4326')
+        for pay in api.payload["layers"]:
+            values = []
+            data_file_name = ""
+            token = pay["user_token"]
+            layer_id = pay["id"]
+            layer_type = pay["layer_id"]
+            layer_name = pay["layer_name"]
+            user = User.verify_auth_token(token)
+            upload = Uploads.query.filter_by(id=layer_id).first()
+
+            upload_url = upload.url
+            if layer_name.endswith(".tif"):
+                cutline_input = model.get_cutline_input(
+                    areas, api.payload["scale_level"], "raster"
+                )
+                filename_tif = generate_geotif_name(constants.UPLOAD_DIRECTORY)
+                args = app.helper.commands_in_array(
+                    "gdalwarp -dstnodata 0 -cutline {} -crop_to_cutline -of GTiff {} {} -tr 100 100 -co COMPRESS=DEFLATE".format(
+                        cutline_input, upload_url, filename_tif
+                    )
+                )
+                app.helper.run_command(args)
+                if os.path.isfile(filename_tif):
+                    ds = gdal.Open(filename_tif)
+                    arr = ds.GetRasterBand(1).ReadAsArray()
+                    df = pd.DataFrame(arr)
+                else:
+                    noDataLayer.append(layer_name)
+                    continue
+                values = self.set_indicators_in_array(df, layer_type)
+            elif layer_name.endswith(".csv"):
+                cutline_input = model.get_cutline_input(
+                    areas, api.payload["scale_level"], "vector"
+                )
+
+                geojson = str(upload_url[:-3]) + "json"
+                if os.path.isfile(geojson):
+                    # take geojson file instead (csv can not be clip), TODO: this on "prepare_clip_personal_layer" function?
+                    upload_url = geojson
+
+                cmd_cutline, output_csv = prepare_clip_personal_layer(
+                    cutline_input, upload_url
+                )
+                app.helper.run_command(app.helper.commands_in_array(cmd_cutline))
+                if os.path.isfile(output_csv):
+                    df = pd.read_csv(output_csv)
+                    if (
+                        api.payload["scale_level"] != constants.hectare_name.lower()
+                        and "code" in df
+                    ):
+                        # Cannot clip with multipoliygons, TODO: no need to cut the csv with a shapefile for this
+                        df = df[df["code"].isin(areas)]
+
+                    for ind in indicators.layersData[layer_type]["indicators"]:
+                        try:
+                            value = df[ind["table_column"]].sum()
+                            if "agg_method" in ind and ind["agg_method"] == "mean":
+                                value /= len(areas)
+
+                            if "factor" in ind:  # Decimal * float => rise error
+                                value = float(value) * float(ind["factor"])
+
+                            values.append(
+                                get_result_formatted(
+                                    layer_type + "_" + ind["indicator_id"],
+                                    str(value),
+                                    ind["unit"],
+                                )
+                            )
+                        except:
+                            noDataLayer.append(layer_name)
+                else:
+                    noDataLayer.append(layer_name)
+                    continue
+            else:
+                noDataLayer.append(layer_name)
+                continue
+
+            result.append({"name": layer_name, "values": values})
+
+        return {
+            "layers": result,
+            "no_data_layers": noDataLayer,
+            "no_table_layers": noDataLayer,
+        }
+
+    @staticmethod
+    def set_indicators_in_array(df, layer_name):
+        values = []
+        # Set result in variables
+        df = df[df != 0]
+        counted_cells = df.count().sum()
+        sum_tif = 0
+        min_tif = 0
+        max_tif = 0
+        density_tif = 0
+        if counted_cells != 0:
+            sum_tif = df.sum().sum()
+            min_tif = df.min().min()
+            max_tif = df.max().max()
+            density_tif = sum_tif / counted_cells
+        # Assign indicator to results
+        for column in (
+            _["table_column"]
+            for _ in indicators.layersData[layer_name]["indicators"]
+            if "table_column" in _
+        ):
+            val = None
+            # return only values that appears on indicators (there's no switch in python)
+            if column == "sum":
+                val = sum_tif
+            elif column == "count":
+                val = counted_cells
+            elif column == "min":
+                val = min_tif
+            elif column == "max":
+                val = max_tif
+            elif column == "mean":
+                val = density_tif
+
+            if val is not None:
+                values.append(get_indicators_from_result(column, layer_name, val))
+
+        if layer_name == indicators.POPULATION_TOT:
+            # add density for Population layer
+            indicator = next(
+                (
+                    _
+                    for _ in indicators.layersData[indicators.POPULATION_TOT][
+                        "indicators"
+                    ]
+                    if _["indicator_id"] == "density"
+                ),
+                None,
+            )
+            if indicator is not None:
+                values.append(
+                    {
+                        "name": indicators.POPULATION_TOT + "_" + "density",
+                        "value": density_tif,
+                        "unit": indicator["unit"],
+                    }
+                )
+
+        return values
+
+
+# Cédric modification : END
+########################################################################################################################
 
 def get_indicators_from_result(id, layer, result):
     filtered_indicators = list(
