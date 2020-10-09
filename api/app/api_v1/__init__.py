@@ -8,6 +8,7 @@ from .snapshot import nsSnapshot
 from .stats import nsStats
 from .upload import nsUpload
 from .users import nsUsers
+from .layers import nsLayers
 
 
 @api.before_request

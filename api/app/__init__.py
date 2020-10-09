@@ -137,7 +137,11 @@ def create_app(config_name):
 
     from .api_v1 import nsCM
 
-    api_rest_plus.add_namespace(main_heat_load_profile_namespace)
+    api_rest_plus.add_namespace(nsCM)
+
+    from .api_v1 import nsLayers
+
+    api_rest_plus.add_namespace(nsLayers)
 
     app.register_blueprint(api)
     dbGIS.init_app(app)
